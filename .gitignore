@@ -1,0 +1,30 @@
+# =========================
+# ENV FILES
+# =========================
+.env
+backend/.env
+frontend/.env
+
+# =========================
+# PYTHON (BACKEND)
+# =========================
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+backend/.mypy_cache/
+
+# =========================
+# NODE (FRONTEND)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# =========================
+# OS / EDITOR
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
