@@ -1,0 +1,454 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  .dash-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    background: #f7f5f2;
+    color: #2f241c;
+  }
+  
+  /* SIDEBAR */
+  .dash-sidebar {
+    background: linear-gradient(180deg, #442515 0%, #5a3220 100%);
+    color: #fff8f2;
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 8px 0 30px rgba(55, 31, 18, 0.08);
+  }
+  
+  .dash-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding: 4px 6px 8px;
+  }
+  
+  .dash-brand-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #d08b55, #efb884);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 22px rgba(208, 139, 85, 0.28);
+  }
+  
+  .dash-brand-text h2 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.05;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.2px;
+  }
+  
+  .dash-brand-text p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: #f1ddd0;
+  }
+  
+  .dash-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dash-nav-item {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #f6e7db;
+    text-align: left;
+    padding: 13px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .dash-nav-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  .dash-nav-item.active {
+    background: linear-gradient(135deg, #d28b54, #e7ac74);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 10px 24px rgba(210, 139, 84, 0.22);
+  }
+  
+  .dash-sidebar-bottom {
+    margin-top: 24px;
+  }
+  
+  .dash-help-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  
+  .dash-help-label {
+    margin: 0 0 6px;
+    font-size: 12px;
+    color: #f0d9c7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .dash-help-card h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    color: #fff;
+  }
+  
+  .dash-help-card span {
+    color: #f0ddd0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  
+  .dash-logout-btn {
+    width: 100%;
+    border: none;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  
+  .dash-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  
+  /* MAIN */
+  .dash-main {
+    padding: 28px;
+  }
+  
+  .dash-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .dash-welcome {
+    margin: 0 0 4px;
+    color: #8a7b70;
+    font-size: 15px;
+  }
+  
+  .dash-topbar h1 {
+    margin: 0 0 12px;
+    font-size: 56px;
+    line-height: 1;
+    color: #241a13;
+    font-weight: 800;
+  }
+  
+  .dash-role-chip {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #f2dfcf;
+    color: #9a6133;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+  
+  .dash-user-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    padding: 18px 20px;
+    border-radius: 24px;
+    box-shadow: 0 12px 24px rgba(43, 33, 24, 0.05);
+    border: 1px solid #efe4da;
+    min-width: 295px;
+  }
+  
+  .dash-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: #f5e7da;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  
+  .dash-user-card h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    color: #241a13;
+  }
+  
+  .dash-user-card p {
+    margin: 0;
+    color: #85766b;
+    font-size: 14px;
+  }
+  
+  /* HERO */
+  .dash-hero {
+    margin-bottom: 24px;
+  }
+  
+  .dash-hero-content {
+    border-radius: 30px;
+    padding: 28px 42px;
+    background: linear-gradient(135deg, #5d331c 0%, #8b542c 100%);
+    color: #fff;
+    box-shadow: 0 20px 40px rgba(93, 51, 28, 0.18);
+  }
+  
+  .dash-hero-badge {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  
+  .dash-hero h2 {
+    margin: 0 0 10px;
+    font-size: 32px;
+    color: #fffaf5;
+    font-weight: 800;
+  }
+  
+  .dash-hero p {
+    margin: 0;
+    /* max-width: 760px; */
+    line-height: 1.8;
+    font-size: 16px;
+    color: #f7e8da;
+  }
+  
+  /* STATS */
+  .dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  
+  .dash-stat-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 22px;
+    border: 1px solid #efe4da;
+    box-shadow: 0 12px 24px rgba(43, 33, 24, 0.04);
+  }
+  
+  .dash-stat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  
+  .dash-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #f5e7da;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  
+  .dash-stat-header span {
+    font-size: 15px;
+    font-weight: 700;
+    color: #44352a;
+  }
+  
+  .dash-stat-card h3 {
+    margin: 0 0 8px;
+    font-size: 34px;
+    color: #241a13;
+  }
+  
+  .dash-stat-card p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #7f7267;
+  }
+  
+  /* LOWER GRID */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 0.9fr;
+    gap: 20px;
+  }
+  
+  .dash-card {
+    background: #fff;
+    border-radius: 28px;
+    padding: 24px;
+    border: 1px solid #efe4da;
+    box-shadow: 0 12px 24px rgba(43, 33, 24, 0.04);
+  }
+  
+  .dash-card-head {
+    margin-bottom: 18px;
+  }
+  
+  .dash-card-head h3 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    color: #241a13;
+  }
+  
+  .dash-card-head p {
+    margin: 0;
+    color: #8a7b70;
+    font-size: 14px;
+  }
+  
+  .dash-module-list {
+    display: grid;
+    gap: 16px;
+  }
+  
+  .dash-module-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f2ebe4;
+  }
+  
+  .dash-module-item:last-child {
+    border-bottom: none;
+  }
+  
+  .dash-module-item h4 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #2f241c;
+  }
+  
+  .dash-module-item p {
+    margin: 0;
+    color: #7b6d62;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+  
+  .dash-badge {
+    white-space: nowrap;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f5e7da;
+    color: #9a6133;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  
+  .dash-activity-list {
+    display: grid;
+    gap: 14px;
+  }
+  
+  .dash-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #faf7f4;
+    border: 1px solid #f2ebe4;
+  }
+  
+  .dash-activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #c8844c;
+    flex-shrink: 0;
+  }
+  
+  .dash-activity-item p {
+    margin: 0;
+    color: #4c3a2d;
+    font-size: 14px;
+  }
+  
+  /* RESPONSIVE */
+  @media (max-width: 1280px) {
+    .dash-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  
+    .dash-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 980px) {
+    .dash-shell {
+      grid-template-columns: 1fr;
+    }
+  
+    .dash-sidebar {
+      padding: 20px;
+    }
+  
+    .dash-main {
+      padding: 18px;
+    }
+  
+    .dash-topbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .dash-stats {
+      grid-template-columns: 1fr;
+    }
+  
+    .dash-topbar h1 {
+      font-size: 34px;
+    }
+  
+    .dash-hero h2 {
+      font-size: 28px;
+    }
+  
+    .dash-user-card {
+      width: 100%;
+      min-width: 0;
+    }
+  }
