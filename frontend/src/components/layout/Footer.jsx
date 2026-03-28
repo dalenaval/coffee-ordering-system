@@ -1,5 +1,3 @@
-"use client";
-
 import { Coffee, MapPin, Phone, Mail, Clock } from "lucide-react";
 import "./Footer.css";
 
@@ -34,7 +32,7 @@ export default function Footer() {
               </li>
               <li>
                 <Mail className="icon-sm" />
-                <span>hello@brewandbean.com</span>
+                <span>kapeNgaNi@gmail.com</span>
               </li>
             </ul>
           </div>

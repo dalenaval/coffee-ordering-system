@@ -9,39 +9,20 @@
   margin: 0 auto;
 }
 
-/* --- Responsive Grid System --- */
 .footer-grid {
   display: grid;
-  /* Mobile First: 1 column */
-  /* grid-template-columns: 1fr; */
-  /* gap: 2.5rem; */
   margin-bottom: 3rem;
   align-items: baseline;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* grid-template-columns: (1fr) */
   gap: 24px;
-  justify-items: start;
+  /* justify-items: start; */
 }
 
 .footer-section {
   text-align: left;
 }
 
-/* Tablet: 2 columns (Match your 3rd photo) */
-/* @media (min-width: 640px) {
-  .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Desktop: 4 columns (Match your 2nd photo) */
-/* @media (min-width: 1024px) {
-  .footer-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-} */
-*/
-
-/* --- Brand Section --- */
 .footer-brand {
   display: flex;
   align-items: center;
@@ -66,7 +47,6 @@
 
 }
 
-/* --- Section Typography --- */
 .footer-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -76,7 +56,6 @@
   color: #fff7ef;
 }
 
-/* --- Lists & Links --- */
 .footer-list,
 .footer-links {
   list-style: none;
@@ -103,12 +82,10 @@
   opacity: 0.7;
 }
 
-/* Special indentation for specific text (e.g., weekend hours) */
 .indent {
   padding-left: 1.75rem;
 }
 
-/* --- Icon Helpers (Lucide Icons) --- */
 .icon-lg {
   width: 32px;
   height: 32px;
@@ -117,11 +94,10 @@
 .icon-sm {
   width: 18px;
   height: 18px;
-  flex-shrink: 0; /* Prevents icon from squishing */
+  flex-shrink: 0; 
   margin-top: 2px;
 }
 
-/* --- Footer Bottom (Copyright) --- */
 .footer-bottom {
   border-top: 1px solid rgba(255, 235, 215, 0.18);
   padding-top: 1.5rem;
