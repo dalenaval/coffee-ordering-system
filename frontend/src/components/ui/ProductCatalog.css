@@ -78,3 +78,16 @@
     overflow-x: auto;
   }
 }
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: #666;
+  font-size: 18px;
+}
+.no-products {
+  width: 100%;
+  text-align: center;
+  padding: 48px;
+  color: #666;
+  font-size: 18px;
+}

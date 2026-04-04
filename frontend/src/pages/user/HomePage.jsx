@@ -10,7 +10,7 @@ import "./HomePage.css";
 import CheckoutForm from "@/components/ui/CheckoutForm";
 
 const HomePage = () => {
-  const [product, setProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -65,12 +65,14 @@ const HomePage = () => {
           <p>Discover your perfect brew</p>
         </div>
 
-        <ProductCatalog onCustomize={(product) => setProduct(product)} />
+        <ProductCatalog
+          onCustomize={(product) => setSelectedProduct(product)}
+        />
       </main>
-      {product && (
+      {selectedProduct && (
         <ProductModal
-          product={product}
-          onClose={() => setProduct(null)}
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
           onAddToCart={handleAddToCart}
         />
       )}
