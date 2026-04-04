@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import users
+from app.api.routes import products
+from app.api.routes import categories
+from app.api.routes import optionGroups
+from app.api.routes import optionItems
 
 app = FastAPI(title="Kape Nga Ni API")
 
@@ -18,6 +22,10 @@ app.add_middleware(
 )
 
 app.include_router(users.router)
+app.include_router(products.router)
+app.include_router(categories.router)
+app.include_router(optionGroups.router)
+app.include_router(optionItems.router)
 
 @app.get("/")
 def root():
