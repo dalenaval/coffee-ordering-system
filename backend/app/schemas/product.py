@@ -1,32 +1,41 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from uuid import UUID
 from decimal import Decimal
+from typing import Optional
+from app.schemas.category import CategoryResponse
 
 class ProductBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    description: str | None = Field("", max_length=500) 
+    description: Optional[str] = Field(None, max_length=500)
     price: Decimal = Field(..., gt=0, max_digits=10, decimal_places=2)
-    category: str = Field(..., min_length=1, max_length=50)
-    image_url: str = Field("", max_length=2048)
-    is_available: bool = True 
-
+    category_id: int
+    image_url: Optional[str] = Field(None, max_length=2048)
+    is_available: bool = True
 class ProductCreate(ProductBase):
     pass
 
 class ProductUpdate(BaseModel):
-    name: str | None = Field(None, min_length=1, max_length=100)
-    description: str | None = Field(None, max_length=500)
-    price: Decimal | None = Field(None, gt=0, max_digits=10, decimal_places=2)
-    category: str | None = Field(None, min_length=1, max_length=50)
-    image_url: str | None = Field(None, max_length=2048)
-    is_available: bool | None = None
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
+    price: Optional[Decimal] = Field(None, gt=0, max_digits=9, decimal_places=2)
+    category_id: Optional[int] = None
+    image_url: Optional[str] = Field(None, max_length=2048)
+    is_available: Optional[bool] = None
 
-class ProductResponse(ProductBase):
+class ProductResponse(BaseModel):
     id: UUID
+    name: str
+    description: Optional[str] = None
+    price: Decimal
+    image_url: Optional[str] = None
+    is_available: bool
     created_at: datetime
+    deleted_at: Optional[datetime] = None 
 
-    # ✅ Crucial for Pydantic V2 to read SQLAlchemy Database Objects
-    model_config = {
-        "from_attributes": True
-    }
+
+    category: Optional[CategoryResponse] = None
+
+    # class Config:
+    #     orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
