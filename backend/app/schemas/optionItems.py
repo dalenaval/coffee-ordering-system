@@ -3,22 +3,22 @@ from decimal import Decimal
 from typing import Optional
 
 
-class OptionItem(BaseModel):
+class OptionItemBase(BaseModel):
     name: str
-    price: Decimal
+    option_group_id: int
+    price_modifier: Decimal
     display_order: int
 
-class OptionItemCreate(OptionItem):
+class OptionItemCreate(OptionItemBase):
     pass
 
 class OptionItemUpdate(BaseModel):
     name: Optional[str] 
-    price: Optional[Decimal]
+    option_group_id: Optional[int]
+    price_modifier: Optional[Decimal]
     display_order: Optional[int]
 
-class OptionItemResponse(BaseModel):
-    name: str
-    price: Decimal
-    display_order: int
-
+class OptionItemResponse(OptionItemBase):
+    id: int
+   
     model_config = ConfigDict(from_attributes=True)

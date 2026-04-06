@@ -1,15 +1,18 @@
 
 from fastapi import APIRouter, Depends,HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from app.db.deps import get_db
-from app.models.optionGroups import OptionGroup
-from app.schemas.optionGroups import OptionGroupResponse, OptionGroupCreate
+from app.models.optionGroup import OptionGroup
+from app.schemas.optionGroup import OptionGroupResponse, OptionGroupCreate
+from sqlalchemy import select
 
 router = APIRouter(prefix ="/option-groups", tags=["OptionGroup"])
 
 @router.get('/', response_model=list[OptionGroupResponse])
 def get_option_groups(db:Session = Depends(get_db)):
-    return db.query(OptionGroup).order_by(OptionGroup.display_order.desc()).all()
+    
+    stmt = select(OptionGroup).where(OptionGroup.deleted_at.is_(None)).options(selectinload(OptionGroup.items))
+    return db.execute(stmt).scalars().all()
 
 @router.post('/', response_model=OptionGroupResponse)
 def create_option_group(payload: OptionGroupCreate, db: Session = Depends(get_db)):

@@ -6,8 +6,9 @@ from app.db.session import Base
 from sqlalchemy.orm import relationship
 
 from app.db.softDeleteMixin import SoftDeleteMixin
+from app.db.timeStampMixin import TimeStampMixin
 
-class Product(Base, SoftDeleteMixin):
+class Product(Base, TimeStampMixin, SoftDeleteMixin):
     __tablename__ = "products"
 
     id = Column(
@@ -21,6 +22,6 @@ class Product(Base, SoftDeleteMixin):
     image_url = Column(Text, nullable=True, index=True)
     price = Column(Numeric(10,2), nullable=False, index=True)
     is_available = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
-    category = relationship("Category", back_populates="products") 
+    category = relationship("Category", back_populates="products")
+    product_attributes = relationship("ProductAttribute", back_populates="product")
