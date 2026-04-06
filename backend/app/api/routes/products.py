@@ -33,10 +33,8 @@ def get_products(db: Session = Depends(get_db),category_id: int = None):
 def get_product_attribute(productId : UUID, db:Session = Depends(get_db)):
         stmt = (select(Product).where(Product.id == productId).options( 
              selectinload(Product.product_attributes)
-             .order_by(ProductAttribute.display_order.asc)
              .selectinload(ProductAttribute.option_group)
              .selectinload(OptionGroup.items)
-             .order_by(OptionItem.display_order.asc)
         ))
 
         product = db.execute(stmt).scalar_one_or_none()
