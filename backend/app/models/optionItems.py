@@ -1,0 +1,17 @@
+from sqlalchemy import BigInteger, Column, SmallInteger, Text, Numeric, DateTime, ForeignKey
+from app.db.session import Base
+from app.db.softDeleteMixin import SoftDeleteMixin
+from sqlalchemy.orm import relationship
+
+from app.db.timeStampMixin import TimeStampMixin
+
+class OptionItem(Base, TimeStampMixin, SoftDeleteMixin):
+    __tablename__ = "option_items"
+
+    id = Column(BigInteger, primary_key=True)
+    option_group_id = Column(BigInteger, ForeignKey("option_groups.id"), nullable=False, index=True)
+    name = Column(Text)
+    price_modifier = Column(Numeric(9, 2))
+    display_order = Column(SmallInteger)
+
+    group = relationship("OptionGroup", back_populates="items")   
