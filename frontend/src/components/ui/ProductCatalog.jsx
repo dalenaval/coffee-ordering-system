@@ -1,7 +1,7 @@
 import "./ProductCatalog.css";
 import ProductCard from "./ProductCard";
 import { useGetCategories } from "@/hooks/useGetCategories";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useGetProducts } from "@/hooks/useGetProducts";
 
 const ProductCatalog = ({ onCustomize }) => {

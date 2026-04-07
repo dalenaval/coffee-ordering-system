@@ -23,6 +23,7 @@ def format_product(product:Product) -> dict:
                 "id": item.id,
                 "name":item.name,
                 "price_modifier": float(item.price_modifier or 0),
+                "option_group_id": item.option_group_id,
                 "display_order": item.display_order
                 
              })

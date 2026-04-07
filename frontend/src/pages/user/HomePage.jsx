@@ -11,9 +11,15 @@ import CheckoutForm from "@/components/ui/CheckoutForm";
 
 const HomePage = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  const handleSelectedProduct = (product) => {
+    setSelectedProduct(product);
+    console.log("product: " + product.id);
+  };
 
   const handleAddToCart = (cartItem) => {
     setCartItems((prev) => [...prev, cartItem]);
@@ -65,9 +71,7 @@ const HomePage = () => {
           <p>Discover your perfect brew</p>
         </div>
 
-        <ProductCatalog
-          onCustomize={(product) => setSelectedProduct(product)}
-        />
+        <ProductCatalog onCustomize={handleSelectedProduct} />
       </main>
       {selectedProduct && (
         <ProductModal

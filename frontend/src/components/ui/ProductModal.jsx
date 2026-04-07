@@ -1,55 +1,24 @@
 import { useEffect, useState } from "react";
-import optionsData from "@/data/optionsData";
 import "./ProductModal.css";
+import OptionGroup from "./OptionGroup";
+import { useGetProductAttributes } from "@/hooks/useGetProductAttributes";
+import useGetDefaultAttributes from "@/hooks/useGetDefaultAttributes";
 
-const ProductModal = ({ onClose, product, onAddToCart }) => {
-  const [selectedOptions, setSelectedOptions] = useState({
-    size: "Medium",
-    shots: "Single",
-    milk: "Whole",
-    sugar: "Regular",
-    extras: [],
-  });
-  const [quantity, setQuantity] = useState(1);
+const ProductModal = ({ product, onAddToCart, onClose }) => {
+  const { data: attributes, isLoading } = useGetProductAttributes(product?.id);
+
+  console.log(attributes);
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   useEffect(() => {
-    const setDefaultOptions = () => {
-      const defaults = {};
-      optionsData.forEach((option) => {
-        if (option.type === "size" && option.name.includes("Medium")) {
-          defaults.size = option;
-        } else if (option.type === "shots" && option.name.includes("Single")) {
-          defaults.shots = option;
-        } else if (option.type === "milk" && option.name.includes("Whole")) {
-          defaults.milk = option;
-        } else if (option.type === "sugar" && option.name.includes("Regular")) {
-          defaults.sugar = option;
-        }
-      });
-      setSelectedOptions((prev) => ({ ...prev, ...defaults }));
-    };
-    setDefaultOptions();
-  }, []);
+    if (attributes) {
+      const initialDefault = useGetDefaultAttributes(attributes);
 
-  const handleOptionSelect = (type, option) => {
-    if (type === "extras") {
-      setSelectedOptions((prev) => {
-        const currentExtras = prev.extras || [];
-        const isSelected = currentExtras.some((e) => e.id === option.id);
-        return {
-          ...prev,
-          extras: isSelected
-            ? currentExtras.filter((e) => e.id !== option.id)
-            : [...currentExtras, option],
-        };
-      });
-    } else {
-      setSelectedOptions((prev) => ({
-        ...prev,
-        [type]: option,
-      }));
+      setSelectedOptions(initialDefault);
     }
-  };
+  }, [attributes]);
+  console.log("initial ", selectedOptions);
+  const [quantity, setQuantity] = useState(1);
 
   const calculateTotal = () => {
     let total = parseFloat(product.price);
@@ -65,24 +34,6 @@ const ProductModal = ({ onClose, product, onAddToCart }) => {
     });
 
     return (total * quantity).toFixed(2);
-  };
-
-  const groupedCustomizations = optionsData.reduce((acc, option) => {
-    if (!acc[option.type]) {
-      acc[option.type] = [];
-    }
-    acc[option.type].push(option);
-    return acc;
-  }, {});
-  console.log("groupedCustomizations:", groupedCustomizations);
-  console.log("selectedOptions:", selectedOptions);
-
-  const categoryLabels = {
-    size: "Size",
-    shots: "Espresso Shots",
-    milk: "Milk Options",
-    sugar: "Sugar Level",
-    extras: "Add Extras",
   };
 
   const handleAddToCart = () => {
@@ -107,6 +58,10 @@ const ProductModal = ({ onClose, product, onAddToCart }) => {
     onClose();
   };
 
+  if (isLoading) {
+    return <div className="loading"> Loading ....</div>;
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -129,41 +84,14 @@ const ProductModal = ({ onClose, product, onAddToCart }) => {
         </div>
 
         <div className="customization-sections">
-          {Object.entries(groupedCustomizations).map(([type, options]) => {
+          {attributes?.option_group?.map((options, index) => {
             return (
-              <div key={type} className="customization-section">
-                <h3>{categoryLabels[type] || type}</h3>
-                <div
-                  className={
-                    type === "extras" ? "options-grid" : "options-list"
-                  }
-                >
-                  {options.map((option) => {
-                    const isSelected =
-                      type === "extras"
-                        ? selectedOptions.extras?.some(
-                            (e) => e.id === option.id
-                          )
-                        : selectedOptions[type]?.id === option.id;
-
-                    return (
-                      <button
-                        key={option.id}
-                        className={`option-button ${isSelected ? "selected" : ""}`}
-                        onClick={() => handleOptionSelect(type, option)}
-                      >
-                        <span className="option-name">{option.name}</span>
-                        {parseFloat(option.price_modifier) !== 0 && (
-                          <span className="option-price">
-                            {parseFloat(option.price_modifier) > 0 ? "+" : ""}₱
-                            {parseFloat(option.price_modifier).toFixed(2)}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <OptionGroup
+                attribute={options}
+                key={index}
+                selectedOptions={selectedOptions}
+                setSelectedOptions={setSelectedOptions}
+              />
             );
           })}
         </div>
