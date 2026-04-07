@@ -29,7 +29,7 @@ def get_products(db: Session = Depends(get_db),category_id: int = None):
 
     return query.order_by(Product.created_at.desc()).all()
 
-@router.get('/{productId}', response_model=ProductDetailsResponse)
+@router.get('/{productId}')
 def get_product_attribute(productId : UUID, db:Session = Depends(get_db)):
         stmt = (select(Product).where(Product.id == productId).options( 
              selectinload(Product.product_attributes)
@@ -42,4 +42,4 @@ def get_product_attribute(productId : UUID, db:Session = Depends(get_db)):
         if not product:
              raise HTTPException(status_code=404, details="Product not found")
 
-        return product
+        return format_product(product)
