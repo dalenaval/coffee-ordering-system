@@ -8,32 +8,21 @@ const OptionGroup = ({ attribute, selectedOptions, setSelectedOptions }) => {
   const handleSelect = (item) => {
     setSelectedOptions((prev) => {
       const current = prev[groupId];
-      console.log("isMany", isMany);
       if (isMany) {
         const updated = Array.isArray(current) ? [...current] : [];
 
         const exist = updated.find((i) => i.id === item.id);
 
-        console.log("updated", updated);
-        console.log("exist", exist);
-        console.log("current", current);
-        console.log("item", item);
         if (exist) {
-          console.log("meron na");
-          updated.filter((i) => {
-            console.log("compare", i.id !== item.id);
-            i.id !== item.id;
-          });
-          console.log("after", updated);
+          return {...prev, [groupId]:updated.filter((i) =>  i.id !== item.id)}
+
         } else {
           if (updated.length < attribute.max_count) {
             updated.push(item);
           }
         }
-
         return { ...prev, [groupId]: updated };
       } else {
-        console.log("1");
         return { ...prev, [groupId]: item };
       }
     });
