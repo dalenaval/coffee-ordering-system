@@ -1,65 +1,53 @@
-import { useEffect, useState } from "react";
-import "./ProductModal.css";
-import OptionGroup from "./OptionGroup";
-import { useGetProductAttributes } from "@/hooks/useGetProductAttributes";
-import useGetDefaultAttributes from "@/hooks/useGetDefaultAttributes";
+import { useEffect, useState, useMemo } from 'react'
+import './ProductModal.css'
+import OptionGroup from './OptionGroup'
+import { useGetProductAttributes } from '@/hooks/useGetProductAttributes'
+import { normalizeAttributes } from '@/utils/normalizeAttributes'
+import { buildDefaultSelections } from '@/utils/buildDefaultSelections'
+import { useCartStore } from '@/store/useCartStore'
+import { calculateTotal } from '@/utils/calculateTotal'
+const ProductModal = ({ product, onClose }) => {
+  const { data: attributes, isLoading } = useGetProductAttributes(product?.id)
 
-const ProductModal = ({ product, onAddToCart, onClose }) => {
-  const { data: attributes, isLoading } = useGetProductAttributes(product?.id);
+  const [quantity, setQuantity] = useState(1)
+  const [selectedOptions, setSelectedOptions] = useState({})
 
-  console.log(attributes);
-  const [selectedOptions, setSelectedOptions] = useState({});
+  const addItem = useCartStore((state) => state.addItem)
+
+  const normalizeGroup = useMemo(() => {
+    return normalizeAttributes(attributes)
+  }, [attributes])
 
   useEffect(() => {
-    if (attributes) {
-      const initialDefault = useGetDefaultAttributes(attributes);
-
-      setSelectedOptions(initialDefault);
+    if (normalizeGroup) {
+      const initialDefault = buildDefaultSelections(normalizeGroup)
+      setSelectedOptions(initialDefault)
     }
-  }, [attributes]);
-  console.log("initial ", selectedOptions);
-  const [quantity, setQuantity] = useState(1);
+  }, [normalizeGroup])
 
-  const calculateTotal = () => {
-    let total = parseFloat(product.price);
+  const unitPrice = useMemo(() => {
+    // let total = Object.values(selectedOptions).reduce((sum, current) => {
+    //   console.log('current', current)
+    //   sum + (parseFloat(current.price_modifier) || 0)
+    // }, 0)
+    let total = calculateTotal(product.price, selectedOptions)
 
-    Object.entries(selectedOptions).forEach(([type, value]) => {
-      if (type === "extras" && Array.isArray(value)) {
-        value.forEach((extra) => {
-          total += parseFloat(extra.price_modifier || 0);
-        });
-      } else if (value && value.price_modifier) {
-        total += parseFloat(value.price_modifier);
-      }
-    });
-
-    return (total * quantity).toFixed(2);
-  };
+    return total * quantity
+  }, [selectedOptions, product.price, quantity])
 
   const handleAddToCart = () => {
-    const customizationsList = [];
-
-    Object.entries(selectedOptions).forEach(([type, value]) => {
-      if (type === "extras" && Array.isArray(value)) {
-        value.forEach((extra) => customizationsList.push(extra));
-      } else if (value) {
-        customizationsList.push(value);
-      }
-    });
-
     const cartItem = {
       product,
-      customizations: customizationsList,
+      customizations: selectedOptions,
       quantity,
-      totalPrice: parseFloat(calculateTotal()),
-    };
+    }
 
-    onAddToCart(cartItem);
-    onClose();
-  };
+    addItem(cartItem)
+    onClose()
+  }
 
   if (isLoading) {
-    return <div className="loading"> Loading ....</div>;
+    return <div className="loading"> Loading ....</div>
   }
 
   return (
@@ -69,22 +57,16 @@ const ProductModal = ({ product, onAddToCart, onClose }) => {
           x
         </div>
         <div className="modal-header">
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="modal-product-image"
-          />
+          <img src={product.image_url} alt={product.name} className="modal-product-image" />
           <div>
             <h2>{product.name}</h2>
             <p className="modal-description">{product.description}</p>
-            <p className="modal-base-price">
-              Base price: ₱ {parseFloat(product.price).toFixed(2)}
-            </p>
+            <p className="modal-base-price">Base price: ₱ {parseFloat(product.price)}</p>
           </div>
         </div>
 
         <div className="customization-sections">
-          {attributes?.option_group?.map((options, index) => {
+          {normalizeGroup.map((options, index) => {
             return (
               <OptionGroup
                 attribute={options}
@@ -92,23 +74,17 @@ const ProductModal = ({ product, onAddToCart, onClose }) => {
                 selectedOptions={selectedOptions}
                 setSelectedOptions={setSelectedOptions}
               />
-            );
+            )
           })}
         </div>
         <div className="quantity-section">
           <h3>Quantity</h3>
           <div className="quantity-controls">
-            <button
-              className="quantity-button"
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            >
+            <button className="quantity-button" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
               -
             </button>
             <span className="quantity-display">{quantity}</span>
-            <button
-              className="quantity-button"
-              onClick={() => setQuantity(quantity + 1)}
-            >
+            <button className="quantity-button" onClick={() => setQuantity(quantity + 1)}>
               +
             </button>
           </div>
@@ -116,12 +92,12 @@ const ProductModal = ({ product, onAddToCart, onClose }) => {
 
         <div className="modal-footer">
           <button className="add-to-cart-button" onClick={handleAddToCart}>
-            Add to Cart - ₱ {calculateTotal()}
+            Add to Cart - ₱ {unitPrice}
           </button>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProductModal;
+export default ProductModal
