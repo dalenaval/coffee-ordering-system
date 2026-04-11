@@ -227,3 +227,17 @@
 .checkout-button:hover {
   background: #8b5a3c;
 }
+
+@media (max-width: 768px) {
+  .cart-sidebar {
+    width: 100%;
+    max-width: 768px;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: #666;
+  font-size: 18px;
+}
