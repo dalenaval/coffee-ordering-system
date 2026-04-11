@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 
-from uuid import UUID
 from app.db.deps import get_db
 from app.models.product import Product
 from app.models.productAttribute import ProductAttribute
@@ -30,7 +29,7 @@ def get_products(db: Session = Depends(get_db),category_id: int = None):
     return query.order_by(Product.created_at.desc()).all()
 
 @router.get('/{productId}')
-def get_product_attribute(productId : UUID, db:Session = Depends(get_db)):
+def get_product_attribute(productId : int, db:Session = Depends(get_db)):
         stmt = (select(Product).where(Product.id == productId).options( 
              selectinload(Product.product_attributes)
              .selectinload(ProductAttribute.option_group)

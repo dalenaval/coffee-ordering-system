@@ -30,7 +30,7 @@ class ProductDetailsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class ProductResponse(BaseModel):
-    id: UUID
+    id: int
     name: str
     description: Optional[str] = None
     price: Decimal

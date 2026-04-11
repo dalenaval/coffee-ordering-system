@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 class OptionGroup(Base, TimeStampMixin, SoftDeleteMixin):   
     __tablename__ = "option_groups"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     max_count = Column(Integer)
     is_required = Column(Boolean, default=False)

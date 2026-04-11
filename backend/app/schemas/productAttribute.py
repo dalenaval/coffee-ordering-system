@@ -4,7 +4,7 @@ from app.schemas.optionGroup import OptionGroupResponse
 from typing import  List
 
 class ProductAttributeBase(BaseModel):
-    product_id: UUID
+    product_id: int
     option_group_id: int
     display_order: int    
 
