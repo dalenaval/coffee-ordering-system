@@ -1,43 +1,44 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { loginUser } from "../api/userService";
-import "./LoginPage.css";
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { loginUser } from '../api/userService'
+import './LoginPage.css'
+import { loginRedirect } from '@/utils/loginRedirect'
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+    email: '',
+    password: '',
+  })
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+    e.preventDefault()
+    setError('')
 
     try {
-      setLoading(true);
+      setLoading(true)
 
-      const result = await loginUser(form);
+      const result = await loginUser(form)
 
-      localStorage.setItem("user", JSON.stringify(result.user));
-      navigate("/dashboard");
+      localStorage.setItem('user', JSON.stringify(result.user))
+      loginRedirect(result?.user?.role, navigate)
     } catch (err) {
-      setError(err?.response?.data?.detail || "Login failed.");
+      setError(err?.response?.data?.detail || 'Login failed.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="login-page">
@@ -48,8 +49,7 @@ export default function LoginPage() {
           <div className="brand-badge">Web Ordering Platform</div>
           <h1 className="brand-title">Kape Nga Ni</h1>
           <p className="brand-description">
-            Manage orders, products, and day-to-day café operations in one
-            modern web-based platform.
+            Manage orders, products, and day-to-day café operations in one modern web-based platform.
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
             </div>
 
             <button type="submit" className="login-btn" disabled={loading}>
-              {loading ? "Signing In..." : "Sign In"}
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
 
             <div className="login-footer">
@@ -97,5 +97,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
