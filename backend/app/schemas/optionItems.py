@@ -18,7 +18,10 @@ class OptionItemUpdate(BaseModel):
     price_modifier: Optional[Decimal]
     display_order: Optional[int]
 
-class OptionItemResponse(OptionItemBase):
+class OptionItemResponse(BaseModel):
     id: int
+    name:str
+    price_modifier:Decimal
+    display_order: int
    
     model_config = ConfigDict(from_attributes=True)

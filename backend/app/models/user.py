@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.sql import func
 from app.db.session import Base
+from sqlalchemy.orm import relationship
 
 from app.db.timeStampMixin import TimeStampMixin
 
@@ -14,3 +15,4 @@ class User(Base, TimeStampMixin):
     role = Column(String(50), default="staff")
     is_active = Column(Boolean, default=True)
     
+    # user_cart = relationship('Cart', back_populates="cart")

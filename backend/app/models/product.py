@@ -17,5 +17,6 @@ class Product(Base, TimeStampMixin, SoftDeleteMixin):
     price = Column(Numeric(10,2), nullable=False, index=True)
     is_available = Column(Boolean, default=True)
 
-    category = relationship("Category", back_populates="products")
-    product_attributes = relationship("ProductAttribute", back_populates="product")
+    category = relationship("Category", back_populates="products", lazy="selectin")
+    product_attributes = relationship("ProductAttribute", back_populates="product", lazy="selectin")
+    # cart_product = relationship('CartItems', back_populates="product")
