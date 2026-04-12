@@ -9,7 +9,7 @@ from app.db.timeStampMixin import TimeStampMixin
 class Product(Base, TimeStampMixin, SoftDeleteMixin):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True )
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Text, nullable=False) 
     description = Column(Text, nullable=True )
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False, index=True)
