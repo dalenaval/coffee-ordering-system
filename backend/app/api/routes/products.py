@@ -9,25 +9,32 @@ from app.models.productAttribute import ProductAttribute
 from app.models.optionGroup import OptionGroup
 from app.models.optionItems import OptionItem
 from app.schemas.product import ProductResponse, ProductDetailsResponse
+from app.models.category import Category
 
 from app.services.product import format_product
 
 router = APIRouter(prefix ="/products", tags=["Product"])
 
 @router.get('/', response_model=list[ProductResponse])
-def get_products(db: Session = Depends(get_db),category_id: int = None):
-    db.query(Product)
+def get_products(db: Session = Depends(get_db)):
+    rows = (
+        db.query(Product, Category)
+        .join(Category, Product.category_id == Category.id)
+        .order_by(Product.name.asc())
+        .all()
+    )
 
-    query = db.query(Product)
-    if category_id:
-        query = query.filter(Product.category_id == category_id)
-
-    # query = query.filter(
-    #     Product.is_available == True,
-    #     Product.deleted_at == None
-    #     )
-
-    return query.order_by(Product.created_at.desc()).all()
+    return [
+        {
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "category": category.name,
+            "price": float(product.price),
+            "is_available": product.is_available,
+        }
+        for product, category in rows
+    ]
 
 @router.get('/{productId}')
 def get_product_attribute(productId : UUID, db:Session = Depends(get_db)):

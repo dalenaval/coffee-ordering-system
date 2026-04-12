@@ -1,4 +1,4 @@
-import uuid6
+
 from sqlalchemy.sql import func
 from sqlalchemy import Column, Numeric, Boolean, Text, DateTime, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
@@ -11,11 +11,7 @@ from app.db.timeStampMixin import TimeStampMixin
 class Product(Base, TimeStampMixin, SoftDeleteMixin):
     __tablename__ = "products"
 
-    id = Column(
-         UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid6.uuid7
-    )
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Text, nullable=False) 
     description = Column(Text, nullable=True )
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False, index=True)
