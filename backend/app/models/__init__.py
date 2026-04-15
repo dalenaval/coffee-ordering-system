@@ -5,3 +5,7 @@ from .customers import Customer
 from .orders import Order
 from .order_item import OrderItem
 from .payment import Payment
+from .system_setting import SystemSetting
+from .employee import Employee
+from .staff_schedule import StaffSchedule
+from .stock_log import StockLog

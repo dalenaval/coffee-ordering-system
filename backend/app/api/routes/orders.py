@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.models.orders import Order
 from app.models.customers import Customer
+from app.models.product import Product
+from app.models.order_item import OrderItem
+from app.models.stock_log import StockLog
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
