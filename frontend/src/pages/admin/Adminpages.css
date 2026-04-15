@@ -851,3 +851,212 @@
     grid-template-columns: 1fr;
   }
 }
+
+.employee-hero {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.employee-hero-content {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.employee-hero .admin-hero-badge {
+  margin: 0 auto 12px;
+}
+
+.employee-hero h2 {
+  text-align: center;
+}
+
+.employee-hero p {
+  text-align: center;
+  max-width: 760px;
+}
+
+.employee-workspace-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 24px;
+}
+
+.employee-form-card,
+.employee-insights-card {
+  min-height: 100%;
+}
+
+.employee-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.employee-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.employee-form-field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6f5747;
+}
+
+.employee-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.employee-checkbox-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid #ece0d5;
+  border-radius: 18px;
+  background: #fcfaf8;
+}
+
+.employee-checkbox-card input {
+  margin-top: 3px;
+}
+
+.employee-checkbox-card strong {
+  display: block;
+  color: #2f241c;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.employee-checkbox-card p {
+  margin: 0;
+  font-size: 13px;
+  color: #7d6d62;
+  line-height: 1.5;
+}
+
+.employee-insight-list {
+  display: grid;
+  gap: 14px;
+}
+
+.employee-insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fcfaf8;
+  border: 1px solid #efe2d6;
+}
+
+.employee-insight-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f3ddc7, #fff4e8);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.employee-insight-item strong {
+  display: block;
+  font-size: 15px;
+  color: #241a13;
+  margin-bottom: 4px;
+}
+
+.employee-insight-item p {
+  margin: 0;
+  font-size: 13px;
+  color: #7d6d62;
+  line-height: 1.5;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.role-admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.role-manager {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.role-staff {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.summary-card.employees-total {
+  background: linear-gradient(135deg, #fff6ee, #ffffff);
+  border-color: #f3ddc7;
+}
+
+.summary-card.employees-active {
+  background: linear-gradient(135deg, #f3fff7, #ffffff);
+  border-color: #d7f4e1;
+}
+
+.summary-card.employees-inactive {
+  background: linear-gradient(135deg, #fff3f3, #ffffff);
+  border-color: #f2d7d7;
+}
+
+.summary-card.employees-manager {
+  background: linear-gradient(135deg, #f5f2ff, #ffffff);
+  border-color: #e0d7ff;
+}
+
+.secondary-action-btn {
+  appearance: none;
+  border: 1px solid #ddcec2;
+  background: #fff;
+  color: #6f5747;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.secondary-action-btn:hover {
+  background: #faf6f2;
+}
+
+@media (max-width: 1100px) {
+  .employee-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .employee-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-form-actions {
+    flex-direction: column;
+  }
+}
+

@@ -1,33 +1,30 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from datetime import datetime
 
-class EmployeeBase(BaseModel):
-    employee_code: str
+class EmployeeCreate(BaseModel):
     full_name: str
     email: Optional[EmailStr] = None
-    phone: Optional[str] = None
+    contact_no: Optional[str] = None
+    position: str
     role: str
-    department: Optional[str] = None
-    employment_type: Optional[str] = None
+    employment_status: str = "Active"
     is_active: bool = True
 
-class EmployeeCreate(EmployeeBase):
-    pass
+    create_login_account: bool = False
+    login_email: Optional[EmailStr] = None
+    login_password: Optional[str] = None
+
 
 class EmployeeUpdate(BaseModel):
-    employee_code: Optional[str] = None
-    full_name: Optional[str] = None
+    full_name: str
     email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    role: Optional[str] = None
-    department: Optional[str] = None
-    employment_type: Optional[str] = None
-    is_active: Optional[bool] = None
+    contact_no: Optional[str] = None
+    position: str
+    role: str
+    employment_status: str = "Active"
+    is_active: bool = True
 
-class EmployeeOut(EmployeeBase):
-    id: int
-    created_at: datetime
 
-    class Config:
-        from_attributes = True
+class EmployeeToggleStatus(BaseModel):
+    is_active: bool
+    

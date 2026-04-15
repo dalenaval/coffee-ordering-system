@@ -183,14 +183,13 @@
 .admin-logout-btn:hover {
   opacity: 0.92;
 }
-
 .admin-main {
-  padding: 24px 28px 28px;
+  padding: 28px 28px 32px;
   overflow-x: hidden;
 }
 
 .admin-page-topbar {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .admin-page-kicker {
@@ -203,11 +202,11 @@
 
 .admin-page-title {
   margin: 0;
-  font-size: 32px;
-  line-height: 1.1;
+  font-size: 28px;
+  line-height: 1.15;
   color: #241a13;
+  font-weight: 800;
 }
-
 .admin-content {
   display: block;
 }
