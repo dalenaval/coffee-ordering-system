@@ -17,3 +17,13 @@ export const getProducts = async (category) => {
   const response = await api.get(`/products/`, { params });
   return response?.data;
 };
+
+export const getLowStockProducts = async () => {
+  const response = await api.get("/products/low-stock");
+  return response.data;
+};
+
+export const restockProduct = async (productId, payload) => {
+  const response = await api.post(`/products/${productId}/restock`, payload);
+  return response.data;
+};
