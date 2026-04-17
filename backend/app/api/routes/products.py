@@ -5,8 +5,6 @@ from app.db.deps import get_db
 from app.models.product import Product
 from app.models.productAttribute import ProductAttribute
 from app.models.optionGroup import OptionGroup
-from app.models.optionItems import OptionItem
-from app.schemas.product import ProductResponse
 from app.models.category import Category
 
 from app.services.product import format_product
@@ -14,7 +12,7 @@ from app.models.stock_log import StockLog
 
 router = APIRouter(prefix ="/products", tags=["Product"])
 
-@router.get('/', response_model=list[ProductResponse])
+@router.get('/')
 def get_products(db: Session = Depends(get_db)):
     rows = (
         db.query(Product, Category)
