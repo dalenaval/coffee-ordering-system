@@ -23,32 +23,24 @@ def format_product(product:Product) -> dict:
                 "id": item.id,
                 "name":item.name,
                 "price_modifier": float(item.price_modifier or 0),
-                "option_group_id": item.option_group_id,
+                "is_default" :item.is_default or False,
                 "display_order": item.display_order
                 
              })
 
-             items.sort(key=lambda x: x['display_order'] or 0)
+        items.sort(key=lambda x: x['display_order'] or 0)
              
         groups.append({
                 "id": group.id,
                 "name": group.name,
                 "max_count":group.max_count,
+                "is_many": group.max_count > 1,
                 "items": items
             })
+        
             
         seen_group_ids.add(group.id)
 
     return {
-        "id": product.id,
-        "name": product.name,
-        "description":product.description,
-        "price": product.price,
         "option_group": groups
     }
-    # return groups.append({
-    #         "id": product.id,
-    #         "name": product.name,
-    #         "price": product.price,
-    #         "options": groups
-    #     })

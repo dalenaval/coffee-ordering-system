@@ -17,7 +17,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 .hero-section h1 {
-  font-size: 48px;
   color: #6b4423;
   margin: 0 0 16px 0;
   font-weight: 700;
@@ -28,4 +27,10 @@
   font-size: 20px;
   color: #666;
   margin: 0;
+}
+
+@media (min-width: 768px) {
+  .hero-section h1 {
+    font-size: 48px;
+  }
 }

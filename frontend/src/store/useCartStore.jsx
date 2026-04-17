@@ -1,86 +1,99 @@
-import { calculateTotal } from '@/utils/calculateTotal'
+import { calculateLineTotal } from '@/utils/calculateLineTotal'
+import { computeCartTotal } from '@/utils/computeCartTotal'
 import { generateProductKey } from '@/utils/generateProductKey'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useShallow } from 'zustand/shallow'
 
-export const useCartStore = create(
+export const cartStore = create(
   persist(
     (set, get) => ({
-      items: [],
+      cartItems: [],
+      cartTotal: 0,
 
       addItem: (item) => {
-        const { product, customizations, quantity } = item
-        console.log('quantity:', quantity)
+        const { product_id, options, quantity } = item
 
-        const productKey = generateProductKey(product?.id, customizations)
-        const unitPrice = calculateTotal(product.price, customizations)
-        const totalPrice = unitPrice * quantity
+        const productKey = generateProductKey(product_id, options)
+        const basePrice = calculateLineTotal(item.unit_price, options)
+        const lineTotal = basePrice * quantity
 
         set((state) => {
-          const existingItemIndex = state.items.findIndex((cartItem) => cartItem.productKey === productKey)
-          console.log('quantity1:', quantity)
+          const existingItemIndex = state.cartItems.findIndex((cartItem) => cartItem.product_id === productKey)
 
           if (existingItemIndex !== -1) {
-            console.log('quantity2:', quantity)
-
-            const updatedItems = [...state.items]
+            const updatedItems = [...state.cartItems]
             const existingItem = updatedItems[existingItemIndex]
             const newQuantity = existingItem?.quantity + quantity
+            const newLineTotal = existingItem.line_total * quantity
 
             updatedItems[existingItemIndex] = {
               ...existingItem,
               quantity: newQuantity,
-              unitPrice: unitPrice,
-              totalPrice: totalPrice,
+              line_total: newLineTotal,
             }
-            return { items: updatedItems }
+            return { cartItems: updatedItems, cartTotal: computeCartTotal(updatedItems) }
           }
+
           const newItem = {
             ...item,
-            productKey,
-            unitPrice: unitPrice,
-            totalPrice: totalPrice,
+            product_id: productKey,
+            base_price: basePrice,
+            line_total: lineTotal,
           }
-          return { items: [...state.items, newItem] }
+          const updatedCart = [...state.cartItems, newItem]
+          return { cartItems: updatedCart, cartTotal: computeCartTotal(updatedCart) }
         })
       },
 
-      updateQuantity: (productKey, quantity) => {
-        const { items, removeCart } = get()
-        if (quantity <= 0) return removeCart(productKey)
+      updateQuantity: (product_id, quantity) => {
+        if (quantity <= 0) return get().removeCart(product_id)
 
-        set({
-          items: items.map((item) =>
-            item.productKey === productKey
-              ? {
-                  ...item,
-                  quantity,
-                  totalPrice: calculateTotal(item.product.price, item.customizations) * quantity,
-                }
-              : item
-          ),
+        set((state) => {
+          const findCartIndex = state.cartItems.findIndex((cartItem) => cartItem.product_id === product_id)
+          console.log('findCartIndex', findCartIndex)
+          if (findCartIndex === -1) return { cartItems: state.cartItems }
+
+          const newCart = [...state.cartItems]
+          const updatedCart = newCart[findCartIndex]
+
+          newCart[findCartIndex] = {
+            ...updatedCart,
+            quantity,
+            line_total: calculateLineTotal(updatedCart.base_price, updatedCart.options) * quantity,
+          }
+
+          return { cartItems: newCart, cartTotal: computeCartTotal(newCart) }
         })
       },
 
-      getCartTotal: () => {
-        return get().items.reduce((total, item) => total + item.totalPrice, 0)
-      },
-
-      removeCart: (productKey) => {
-        const { items } = get()
-
-        const updatedCart = items.filter((item) => item.productKey !== productKey)
-        set({ items: updatedCart })
+      removeCart: (product_id) => {
+        const updatedCart = get().cartItems.filter((item) => item.product_id !== product_id)
+        set({ cartItems: updatedCart, cartTotal: computeCartTotal(updatedCart) })
       },
       clearCart: () => {
-        set({ items: [] })
+        set({ cartItems: [], cartTotal: 0 })
       },
     }),
     {
       name: 'cart-storage',
       partialize: (state) => ({
-        items: state.items,
+        cartItems: state.cartItems,
       }),
     }
   )
 )
+
+export const useCartStore = () => {
+  return cartStore(
+    useShallow((state) => ({
+      cartItems: state.cartItems,
+      cartTotal: state.cartTotal,
+      addItem: state.addItem,
+      updateQuantity: state.updateQuantity,
+      getCartTotal: state.getCartTotal,
+      removeCart: state.removeCart,
+      clearCart: state.clearCart,
+    }))
+  )
+}

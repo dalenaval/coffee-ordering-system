@@ -1,20 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select
 
 from app.db.deps import get_db
 from app.models.product import Product
 from app.models.productAttribute import ProductAttribute
 from app.models.optionGroup import OptionGroup
-from app.models.optionItems import OptionItem
-from app.schemas.product import ProductResponse, ProductDetailsResponse
+from app.schemas.product import ProductResponse
 from app.models.category import Category
 
 from app.services.product import format_product
 
 router = APIRouter(prefix ="/products", tags=["Product"])
 
-@router.get('/', response_model=list[ProductResponse])
+@router.get('/')
 def get_products(db: Session = Depends(get_db)):
     rows = (
         db.query(Product, Category)
@@ -35,17 +33,18 @@ def get_products(db: Session = Depends(get_db)):
         for product, category in rows
     ]
 
-@router.get('/{productId}')
-def get_product_attribute(productId : int, db:Session = Depends(get_db)):
-        stmt = (select(Product).where(Product.id == productId).options( 
-             selectinload(Product.product_attributes)
-             .selectinload(ProductAttribute.option_group)
-             .selectinload(OptionGroup.items)
-        ))
+@router.get('/{product_id}/attributes')
+async def get_product_attribute(product_id : int, db:Session = Depends(get_db)):
+        
+    product = (db.query(Product).options( 
+            selectinload(Product.product_attributes)
+            .selectinload(ProductAttribute.option_group)
+            .selectinload(OptionGroup.items)
+            )
+            .filter(Product.id == product_id)
+            .first())
 
-        product = db.execute(stmt).scalar_one_or_none()
+    if not product:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
-        if not product:
-             raise HTTPException(status_code=404, details="Product not found")
-
-        return format_product(product)
+    return format_product(product)

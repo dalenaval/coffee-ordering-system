@@ -13,4 +13,4 @@ class ProductAttribute(Base, TimeStampMixin):
     display_order = Column(Integer)
 
     product = relationship("Product", back_populates="product_attributes")
-    option_group = relationship("OptionGroup", lazy="selectin")
+    option_group = relationship("OptionGroup", back_populates="product_attributes")

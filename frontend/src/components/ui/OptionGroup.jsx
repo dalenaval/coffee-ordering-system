@@ -1,14 +1,13 @@
 import OptionItems from './OptionItems'
 import './OptionGroup.css'
 
-const OptionGroup = ({ attribute, selectedOptions, setSelectedOptions }) => {
-  const isMany = attribute?.max_count > 1
+const OptionGroup = ({ attribute, selectedMenu, setSelectedMenu }) => {
   const groupId = attribute?.id
 
   const handleSelect = (item) => {
-    setSelectedOptions((prev) => {
+    setSelectedMenu((prev) => {
       const current = prev[groupId]
-      if (isMany) {
+      if (attribute?.is_many) {
         const updated = Array.isArray(current) ? [...current] : []
 
         const exist = updated.find((i) => i.id === item.id)
@@ -26,6 +25,7 @@ const OptionGroup = ({ attribute, selectedOptions, setSelectedOptions }) => {
       }
     })
   }
+
   return (
     <div className="container">
       <div className="container-content">
@@ -35,8 +35,8 @@ const OptionGroup = ({ attribute, selectedOptions, setSelectedOptions }) => {
       </div>
       <div className="options-list">
         {attribute?.items?.map((item) => {
-          const selected = selectedOptions[groupId]
-          const isSelected = isMany ? selected?.some((e) => e?.id === item?.id) : selected?.id === item?.id
+          const selected = selectedMenu[groupId]
+          const isSelected = attribute?.is_many ? selected?.some((e) => e?.id === item?.id) : selected?.id === item?.id
           return <OptionItems item={item} isSelected={isSelected} key={item?.id} onClick={handleSelect} />
         })}
       </div>

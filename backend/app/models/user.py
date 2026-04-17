@@ -15,4 +15,4 @@ class User(Base, TimeStampMixin):
     role = Column(String(50), default="staff")
     is_active = Column(Boolean, default=True)
     
-    # user_cart = relationship('Cart', back_populates="cart")
+    user_cart = relationship('Cart')

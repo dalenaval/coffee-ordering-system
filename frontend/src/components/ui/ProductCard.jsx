@@ -1,4 +1,4 @@
-import "./ProductCard.css";
+import './ProductCard.css'
 
 const ProductCard = ({ product, onCustomize }) => {
   return (
@@ -10,19 +10,14 @@ const ProductCard = ({ product, onCustomize }) => {
         <h3 className="product-name">{product?.name}</h3>
         <p className="product-description">{product?.description}</p>
         <div className="product-footer">
-          <span className="product-price">
-            ₱ {parseFloat(product?.price).toFixed(2)}
-          </span>
-          <button
-            className="customize-button"
-            onClick={() => onCustomize(product)}
-          >
+          <span className="product-price">₱ {parseFloat(product?.price)}</span>
+          <button className="customize-button" onClick={() => onCustomize(product)}>
             Customize
           </button>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProductCard;
+export default ProductCard

@@ -1,50 +1,50 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import './ProductModal.css'
 import OptionGroup from './OptionGroup'
-import { useGetProductAttributes } from '@/hooks/useGetProductAttributes'
-import { normalizeAttributes } from '@/utils/normalizeAttributes'
 import { buildDefaultSelections } from '@/utils/buildDefaultSelections'
-import { useCartStore } from '@/store/useCartStore'
-import { calculateTotal } from '@/utils/calculateTotal'
+import { calculateLineTotal } from '@/utils/calculateLineTotal'
+import { useGetProductAttributes } from '@/hooks/useProductAttributeQuery'
+import { useCart } from '@/utils/useCart'
+
 const ProductModal = ({ product, onClose }) => {
   const { data: attributes, isLoading } = useGetProductAttributes(product?.id)
 
-  const [quantity, setQuantity] = useState(1)
-  const [selectedOptions, setSelectedOptions] = useState({})
-
-  const addItem = useCartStore((state) => state.addItem)
-
-  const normalizeGroup = useMemo(() => {
-    return normalizeAttributes(attributes)
+  const defaultOptions = useMemo(() => {
+    if (!attributes) return {}
+    return buildDefaultSelections(attributes)
   }, [attributes])
 
+  const [quantity, setQuantity] = useState(1)
+  const [selectedMenu, setSelectedMenu] = useState(defaultOptions)
+
+  const { addToCart } = useCart()
+
   useEffect(() => {
-    if (normalizeGroup) {
-      const initialDefault = buildDefaultSelections(normalizeGroup)
-      setSelectedOptions(initialDefault)
-    }
-  }, [normalizeGroup])
+    setSelectedMenu(defaultOptions)
+  }, [defaultOptions])
 
-  const unitPrice = useMemo(() => {
-    // let total = Object.values(selectedOptions).reduce((sum, current) => {
-    //   console.log('current', current)
-    //   sum + (parseFloat(current.price_modifier) || 0)
-    // }, 0)
-    let total = calculateTotal(product.price, selectedOptions)
+  const basePrice = useMemo(() => {
+    const price = product?.price
+    if (!price) return 0
+    return calculateLineTotal(price, selectedMenu)
+  }, [product.price, selectedMenu])
 
-    return total * quantity
-  }, [selectedOptions, product.price, quantity])
+  const lineTotal = useMemo(() => basePrice * quantity, [basePrice, quantity])
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(async () => {
+    if (!product?.id) return
+
     const cartItem = {
-      product,
-      customizations: selectedOptions,
+      options: selectedMenu,
       quantity,
+      unit_price: product.price,
+      product_id: product?.id,
+      product_name: product.name,
+      product_image: product.image_url,
     }
-
-    addItem(cartItem)
+    addToCart(cartItem)
     onClose()
-  }
+  }, [product, selectedMenu, quantity, addToCart, onClose])
 
   if (isLoading) {
     return <div className="loading"> Loading ....</div>
@@ -66,13 +66,13 @@ const ProductModal = ({ product, onClose }) => {
         </div>
 
         <div className="customization-sections">
-          {normalizeGroup.map((options, index) => {
+          {attributes.map((options, index) => {
             return (
               <OptionGroup
                 attribute={options}
                 key={index}
-                selectedOptions={selectedOptions}
-                setSelectedOptions={setSelectedOptions}
+                selectedMenu={selectedMenu}
+                setSelectedMenu={setSelectedMenu}
               />
             )
           })}
@@ -92,7 +92,7 @@ const ProductModal = ({ product, onClose }) => {
 
         <div className="modal-footer">
           <button className="add-to-cart-button" onClick={handleAddToCart}>
-            Add to Cart - ₱ {unitPrice}
+            Add to Cart - ₱ {lineTotal}
           </button>
         </div>
       </div>

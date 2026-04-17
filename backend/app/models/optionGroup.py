@@ -13,4 +13,5 @@ class OptionGroup(Base, TimeStampMixin, SoftDeleteMixin):
     max_count = Column(Integer)
     is_required = Column(Boolean, default=False)
 
-    items =  relationship("OptionItem", back_populates="group", lazy="selectin")
+    items =  relationship("OptionItem", back_populates="group")
+    product_attributes = relationship("ProductAttribute", back_populates="option_group")

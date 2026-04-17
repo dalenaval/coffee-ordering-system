@@ -1,5 +1,4 @@
 from pydantic import BaseModel, ConfigDict
-from uuid import UUID
 from app.schemas.optionGroup import OptionGroupResponse
 from typing import  List
 

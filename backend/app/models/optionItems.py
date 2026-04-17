@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, SmallInteger, Text, Numeric, DateTime, ForeignKey
+from sqlalchemy import Integer, Column, SmallInteger, Text, Numeric, Boolean, ForeignKey
 from app.db.session import Base
 from app.db.softDeleteMixin import SoftDeleteMixin
 from sqlalchemy.orm import relationship
@@ -13,6 +13,7 @@ class OptionItem(Base, TimeStampMixin, SoftDeleteMixin):
     name = Column(Text)
     price_modifier = Column(Numeric(9, 2))
     display_order = Column(SmallInteger)
+    is_default = Column(Boolean, default=False) 
 
     group = relationship("OptionGroup", back_populates="items")   
-    # cart_attributes = relationship('CartItemOptions', back_populates='options')
+    cart_attributes = relationship('CartItemOption', back_populates='options')

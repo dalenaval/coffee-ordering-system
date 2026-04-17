@@ -7,12 +7,14 @@ class CreateCartItem(BaseModel):
     product_id = int
     quantity = int
     unit_price = Decimal
+    option_total = Decimal
 
 class UpdateCartItem(BaseModel):
     cart_id = Optional[int]
     product_id = Optional[int]
     quantity = Optional[int]
     unit_price = Optional[Decimal]
+    option_total = Decimal
 
 # class CartItemResponse(BaseModel):
 #     product

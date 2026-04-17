@@ -10,3 +10,7 @@ router = APIRouter(prefix ="/categories", tags=["Categories"])
 @router.get('/', response_model=list[CategoryResponse])
 def get_categories(db: Session = Depends(get_db)):
     return db.query(Category).order_by(Category.created_at.desc()).all()
+
+@router.get('/active', response_model=list[CategoryResponse])
+def get_categories(db: Session = Depends(get_db)):
+    return db.query(Category).where(Category.is_active == True).order_by(Category.created_at.desc()).all()

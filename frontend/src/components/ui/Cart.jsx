@@ -1,18 +1,10 @@
 import { Trash2Icon } from 'lucide-react'
 import './Cart.css'
-import { useCartStore } from '@/store/useCartStore'
+import { useCart } from '@/utils/useCart'
 
 const Cart = ({ isOpen, onClose, onCheckout }) => {
-  const hasHydrated = useCartStore.persist.hasHydrated()
+  const { cart, total, removeItem, updateItemQuantity } = useCart()
 
-  const cartItems = useCartStore((state) => state.items)
-  const removeCart = useCartStore((state) => state.removeCart)
-  const updateQuantity = useCartStore((state) => state.updateQuantity)
-  const cartTotal = useCartStore((state) => state.getCartTotal)
-
-  if (!hasHydrated) {
-    return <div className="loading">Loading cart...</div>
-  }
   if (!isOpen) return null
 
   return (
@@ -24,24 +16,23 @@ const Cart = ({ isOpen, onClose, onCheckout }) => {
             ×
           </button>
         </div>
-
         <div className="cart-items">
-          {cartItems.length === 0 ? (
+          {cart?.length === 0 ? (
             <div className="cart-empty">
               <p>Your cart is empty</p>
               <p className="cart-empty-hint">Add items to get started!</p>
             </div>
           ) : (
-            cartItems?.map((item, index) => (
+            cart?.map((item, index) => (
               <div key={index} className="cart-item">
                 <div className="cart-item-image">
-                  <img src={item.product.image_url} alt={item.product.name} />
+                  <img src={item?.product_image} alt={item?.product_name} />
                 </div>
                 <div className="cart-item-details">
-                  <h4>{item.product.name}</h4>
-                  {Object.keys(item.customizations).length > 0 && (
-                    <div className="cart-item-customizations">
-                      {Object.values(item.customizations).map((option) => (
+                  <h4>{item.product_name}</h4>
+                  {Object.keys(item.options)?.length > 0 && (
+                    <div className="cart-item-options">
+                      {Object.values(item.options).map((option) => (
                         <span key={option.id} className="customization-tag">
                           {option.name}
                         </span>
@@ -50,37 +41,31 @@ const Cart = ({ isOpen, onClose, onCheckout }) => {
                   )}
                   <div className="cart-item-footer">
                     <div className="cart-item-quantity">
-                      <button
-                        className="quantity-btn"
-                        onClick={() => updateQuantity(item.productKey, item.quantity - 1)}
-                      >
+                      <button className="quantity-btn" onClick={() => updateItemQuantity(item, item.quantity - 1)}>
                         -
                       </button>
                       <span>{item.quantity}</span>
-                      <button
-                        className="quantity-btn"
-                        onClick={() => updateQuantity(item.productKey, item.quantity + 1)}
-                      >
+                      <button className="quantity-btn" onClick={() => updateItemQuantity(item, item.quantity + 1)}>
                         +
                       </button>
                     </div>
                   </div>
                 </div>
                 <div className="cart-item-actions">
-                  <Trash2Icon onClick={() => removeCart(item.productKey)} className={'cart-item-remove'} />
+                  <Trash2Icon onClick={() => removeItem(item)} className={'cart-item-remove'} />
 
-                  <span className="cart-item-price">₱ {item.totalPrice}</span>
+                  <span className="cart-item-price">₱ {item?.line_total}</span>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {cartItems.length > 0 && (
+        {cart.length > 0 && (
           <div className="cart-footer">
             <div className="cart-total">
               <span>Total:</span>
-              <span className="cart-total-amount">₱{cartTotal()}</span>
+              <span className="cart-total-amount">₱{total}</span>
             </div>
             <button className="checkout-button" onClick={onCheckout}>
               Proceed to Checkout

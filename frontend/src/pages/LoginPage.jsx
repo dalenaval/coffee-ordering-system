@@ -1,19 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { loginUser } from '../api/userService'
 import './LoginPage.css'
-import { loginRedirect } from '@/utils/loginRedirect'
+import { useAuthLogin } from '@/hooks/useAuthQuery'
 
 export default function LoginPage() {
-  const navigate = useNavigate()
+  const { mutate: loginUser, isPending } = useAuthLogin()
 
   const [form, setForm] = useState({
     email: '',
     password: '',
   })
-
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -24,22 +20,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
-
-    try {
-      setLoading(true)
-
-      const result = await loginUser(form)
-
-      localStorage.setItem('user', JSON.stringify(result.user))
-      loginRedirect(result?.user?.role, navigate)
-    } catch (err) {
-      setError(err?.response?.data?.detail || 'Login failed.')
-    } finally {
-      setLoading(false)
-    }
+    loginUser(form)
   }
-
   return (
     <div className="login-page">
       <div className="login-overlay"></div>
@@ -60,10 +42,10 @@ export default function LoginPage() {
               <p>Sign in to continue to Kape Nga Ni dashboard.</p>
             </div>
 
-            {error && <div className="login-error">{error}</div>}
-
             <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+              <label className="form-label" htmlFor="email">
+                Email Address
+              </label>
               <input
                 id="email"
                 type="email"
@@ -75,7 +57,9 @@ export default function LoginPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label className="form-label" htmlFor="password">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -86,8 +70,8 @@ export default function LoginPage() {
               />
             </div>
 
-            <button type="submit" className="login-btn" disabled={loading}>
-              {loading ? 'Signing In...' : 'Sign In'}
+            <button type="submit" className="login-btn" disabled={isPending}>
+              {isPending ? 'Signing In...' : 'Sign In'}
             </button>
 
             <div className="login-footer">

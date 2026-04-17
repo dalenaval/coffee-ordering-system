@@ -15,8 +15,9 @@ class Product(Base, TimeStampMixin, SoftDeleteMixin):
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False, index=True)
     image_url = Column(Text, nullable=True)
     price = Column(Numeric(10,2), nullable=False, index=True)
+    stock = Column(Integer, default= 1) 
     is_available = Column(Boolean, default=True)
 
     category = relationship("Category", back_populates="products", lazy="selectin")
     product_attributes = relationship("ProductAttribute", back_populates="product", lazy="selectin")
-    # cart_product = relationship('CartItems', back_populates="product")
+    cart_product = relationship('CartItem', back_populates="product")

@@ -14,6 +14,8 @@ from app.api.routes import orders
 from app.api.routes import order_items
 from app.api.routes import payment
 from app.api.routes import dashboard
+from app.api.routes import menu
+from app.api.routes import cart
 
 Base.metadata.create_all(bind=engine)
 
@@ -42,7 +44,9 @@ app.include_router(productAttributes.router)
 app.include_router(orders.router)
 app.include_router(order_items.router)
 app.include_router(payment.router)
+app.include_router(menu.router)
 app.include_router(dashboard.router)
+app.include_router(cart.router)
 
 @app.get("/")
 def root():
