@@ -1,10 +1,8 @@
 import { ShoppingCart, User, User2, User2Icon } from 'lucide-react'
 import './Header.css'
-import { Link, NavLink } from 'react-router-dom'
 import { useUserStore } from '@/store/useUserStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCart } from '@/utils/useCart'
-import CardNav from '../ui/CardNav'
 
 const Header = ({ title = 'Kape Nga Ni', showCart = false, onCartClick, onProfileClick, children }) => {
   const user = useUserStore((state) => state.user)

@@ -10,17 +10,15 @@ import api from './axios'
 //   return response.data;
 // };
 
-export const getProducts = async (category) => {
-<<<<<<< HEAD
+export const getMenuList = async (category) => {
   const params = category && category?.name !== 'all' ? { category_id: category.id } : {}
   console.log('params in getProducts:', params)
   const response = await api.get(`/menu/`, { params })
   return response?.data
 }
-=======
-  const params =
-    category && category?.name !== "all" ? { category_id: category.id } : {};
-  console.log("params in getProducts:", params);
+
+export const getProducts = async (category) => {
+const params = category && category?.name !== "all" ? { category_id: category.id } : {};
   const response = await api.get(`/products/`, { params });
   return response?.data;
 };
@@ -34,4 +32,3 @@ export const restockProduct = async (productId, payload) => {
   const response = await api.post(`/products/${productId}/restock`, payload);
   return response.data;
 };
->>>>>>> develop

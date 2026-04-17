@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
-import { getProducts, getLowStockProducts, restockProduct } from "../../api/productService";
+import { getMenuList, getLowStockProducts, restockProduct } from "../../api/productService";
 import "./AdminPages.css";
 
 export default function ProductsPage() {
@@ -16,7 +16,7 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const data = await getProducts();
+      const data = await getMenuList();
       setProducts(data);
     } catch (error) {
       console.error("Failed to load products:", error);

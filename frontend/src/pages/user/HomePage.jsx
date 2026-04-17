@@ -14,7 +14,6 @@ import { cartStore } from '@/store/useCartStore'
 import { useAuth } from '@/store/useAuthStore'
 import UserMenu from '@/components/ui/UserMenu'
 import { useSessionStore } from '@/store/useSessionStore'
-import CardNav from '@/components/ui/CardNav'
 
 const HomePage = () => {
   const cartItems = cartStore((state) => state.cartItems)

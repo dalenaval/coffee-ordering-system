@@ -6,7 +6,7 @@ from app.models.product import Product
 from app.models.productAttribute import ProductAttribute
 from app.models.optionGroup import OptionGroup
 from app.models.optionItems import OptionItem
-from app.schemas.product import ProductResponse, ProductDetailsResponse
+from app.schemas.product import ProductResponse
 from app.models.category import Category
 
 from app.services.product import format_product
