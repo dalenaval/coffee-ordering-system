@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select
 
-from uuid import UUID
 from app.db.deps import get_db
 from app.models.product import Product
 from app.models.productAttribute import ProductAttribute
@@ -37,6 +35,22 @@ def get_products(db: Session = Depends(get_db)):
         for product, category in rows
     ]
 
+@router.get('/{product_id}/attributes')
+async def get_product_attribute(product_id : int, db:Session = Depends(get_db)):
+        
+    product = (db.query(Product).options( 
+            selectinload(Product.product_attributes)
+            .selectinload(ProductAttribute.option_group)
+            .selectinload(OptionGroup.items)
+            )
+            .filter(Product.id == product_id)
+            .first())
+
+    if not product:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    
+    return format_product(product)
+    
 @router.get("/low-stock")
 def get_low_stock_products(db: Session = Depends(get_db)):
     products = (
@@ -90,19 +104,3 @@ def restock_product(product_id: int, payload: dict, db: Session = Depends(get_db
             "stock": product.stock
         }
     }
-
-
-@router.get('/{productId}')
-def get_product_attribute(productId : UUID, db:Session = Depends(get_db)):
-        stmt = (select(Product).where(Product.id == productId).options( 
-             selectinload(Product.product_attributes)
-             .selectinload(ProductAttribute.option_group)
-             .selectinload(OptionGroup.items)
-        ))
-
-        product = db.execute(stmt).scalar_one_or_none()
-
-        if not product:
-             raise HTTPException(status_code=404, details="Product not found")
-
-        return format_product(product)

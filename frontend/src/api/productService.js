@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from './axios'
 
 // export const registerProduct = async (payload) => {
 //   const response = await api.post("/products/register", payload);
@@ -11,6 +11,13 @@ import api from "./axios";
 // };
 
 export const getProducts = async (category) => {
+<<<<<<< HEAD
+  const params = category && category?.name !== 'all' ? { category_id: category.id } : {}
+  console.log('params in getProducts:', params)
+  const response = await api.get(`/menu/`, { params })
+  return response?.data
+}
+=======
   const params =
     category && category?.name !== "all" ? { category_id: category.id } : {};
   console.log("params in getProducts:", params);
@@ -27,3 +34,4 @@ export const restockProduct = async (productId, payload) => {
   const response = await api.post(`/products/${productId}/restock`, payload);
   return response.data;
 };
+>>>>>>> develop

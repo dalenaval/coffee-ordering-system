@@ -1,13 +1,23 @@
-import { ShoppingCart } from "lucide-react";
-import "./Header.css";
+import { ShoppingCart, User, User2, User2Icon } from 'lucide-react'
+import './Header.css'
+import { Link, NavLink } from 'react-router-dom'
+import { useUserStore } from '@/store/useUserStore'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useCart } from '@/utils/useCart'
+import CardNav from '../ui/CardNav'
 
-const Header = ({
-  title = "Kape Nga Ni",
-  showCart = false,
-  cartItemCount,
-  onCartClick,
-  children,
-}) => {
+const Header = ({ title = 'Kape Nga Ni', showCart = false, onCartClick, onProfileClick, children }) => {
+  const user = useUserStore((state) => state.user)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const { cart } = useCart()
+
+  const handleKeyDown = (callback) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      callback?.()
+    }
+  }
+
   return (
     <header className="header">
       <div className="header-container">
@@ -17,24 +27,35 @@ const Header = ({
         <div className="header-actions">
           {children}
           {showCart && (
-            <button
-              className="cart-button"
+            <div
+              className="header-button"
               onClick={onCartClick}
-              aria-label={`Shopping cart with ${cartItemCount} items`}
+              role="button"
+              tabIndex={0}
+              onKeyDown={handleKeyDown(onCartClick)}
             >
               <ShoppingCart className="icon-md" aria-hidden="true" />
-              <span className="cart-text">Cart</span>
-
-              {cartItemCount > 0 && (
+              {cart?.length > 0 && (
                 <span className="cart-badge" aria-live="polite">
-                  {cartItemCount}
+                  {cart?.length}
                 </span>
               )}
-            </button>
+            </div>
+          )}
+          {isAuthenticated && (
+            <div
+              className="header-button profile"
+              onClick={onProfileClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={handleKeyDown(onProfileClick)}
+            >
+              <User2Icon className="icon-md" user={user} />
+            </div>
           )}
         </div>
       </div>
     </header>
-  );
-};
-export default Header;
+  )
+}
+export default Header

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
 from sqlalchemy.sql import func
 from app.db.session import Base
 from sqlalchemy.orm import relationship
@@ -13,4 +13,3 @@ class Category(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     products = relationship("Product", back_populates="category")
-

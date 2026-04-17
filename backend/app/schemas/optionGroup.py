@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
 from typing import Optional
 from app.schemas.optionItems import OptionItemResponse
 from typing import List
@@ -7,9 +7,10 @@ class OptionGroupBase(BaseModel):
     name: str
     max_count: int
     is_required: bool
-
-class OptionGroupCreate(OptionGroupBase):
-    pass
+class OptionGroupCreate(BaseModel):
+    name: str
+    max_count: int
+    is_required: bool
 
 class UpdateOptionGroup(BaseModel):
     name: Optional[str]

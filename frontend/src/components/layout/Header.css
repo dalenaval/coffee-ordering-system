@@ -1,3 +1,6 @@
+* {
+  padding: 0;
+}
 .header {
   background: linear-gradient(135deg, #6b4423 0%, #8b5a3c 100%);
   color: white;
@@ -6,6 +9,7 @@
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .header-container {
@@ -30,23 +34,22 @@
   gap: 16px;
 }
 
-.cart-button {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+.header-button {
+  /* border: 2px solid rgba(255, 255, 255, 0.15); */
   color: white;
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 8px`;
   font-size: 16px;
   font-weight: 500;
   transition: all 0.3s ease;
   position: relative;
 }
 
-.cart-button:hover {
+.header-button:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
@@ -69,4 +72,15 @@
   justify-content: center;
   font-size: 12px;
   font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .header-title h1 {
+    visibility: hidden;
+  }
+
+  .profile {
+    position: absolute;
+    left: 0;
+  }
 }

@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import "./LandingPage.css";
+import { Link } from 'react-router-dom'
+import './LandingPage.css'
 
 export default function LandingPage() {
   return (
@@ -22,16 +22,15 @@ export default function LandingPage() {
         <div className="landing-hero-left">
           <span className="landing-badge">Modern Café Ordering Platform</span>
 
-          <h1>
+          <h1 className="text-white">
             A smarter way to bring
             <span> Kape Nga Ni </span>
             online.
           </h1>
 
           <p>
-            Transform your kiosk ordering experience into a modern web-based
-            platform for customers, staff, and administrators. Fast ordering,
-            centralized operations, and seamless management in one system.
+            Transform your kiosk ordering experience into a modern web-based platform for customers, staff, and
+            administrators. Fast ordering, centralized operations, and seamless management in one system.
           </p>
 
           <div className="landing-actions">
@@ -76,48 +75,33 @@ export default function LandingPage() {
 
       <section id="features" className="landing-section">
         <div className="section-heading">
-          <h2>Core Features</h2>
-          <p>
-            Built for kiosk-to-web migration with modern tools and scalable
-            architecture.
-          </p>
+          <h2 className="text-white">Core Features</h2>
+          <p>Built for kiosk-to-web migration with modern tools and scalable architecture.</p>
         </div>
 
         <div className="feature-grid">
           <div className="feature-box">
             <div className="feature-icon">☕</div>
             <h3>Digital Menu</h3>
-            <p>
-              Present your café products in a clean and responsive menu for web,
-              tablet, and mobile.
-            </p>
+            <p>Present your café products in a clean and responsive menu for web, tablet, and mobile.</p>
           </div>
 
           <div className="feature-box">
             <div className="feature-icon">🛒</div>
             <h3>Cart & Checkout</h3>
-            <p>
-              Let customers browse, customize, add to cart, and complete orders
-              with ease.
-            </p>
+            <p>Let customers browse, customize, add to cart, and complete orders with ease.</p>
           </div>
 
           <div className="feature-box">
             <div className="feature-icon">📋</div>
             <h3>Order Monitoring</h3>
-            <p>
-              Help staff manage incoming orders and update order statuses in
-              real time.
-            </p>
+            <p>Help staff manage incoming orders and update order statuses in real time.</p>
           </div>
 
           <div className="feature-box">
             <div className="feature-icon">📊</div>
             <h3>Admin Control</h3>
-            <p>
-              Manage users, products, categories, and business operations from a
-              centralized dashboard.
-            </p>
+            <p>Manage users, products, categories, and business operations from a centralized dashboard.</p>
           </div>
         </div>
       </section>
@@ -125,7 +109,7 @@ export default function LandingPage() {
       <section id="about" className="landing-section about-section">
         <div className="about-card">
           <div className="about-text">
-            <h2>Why this platform works</h2>
+            <h2 className="text-white">Why this platform works</h2>
             <p>
               Kape Nga Ni is powered by a modern stack:
               <strong> React + Vite </strong> for the frontend,
@@ -133,12 +117,12 @@ export default function LandingPage() {
               <strong> PostgreSQL </strong> for reliable data storage.
             </p>
             <p>
-              This setup gives your business a fast interface, clean API
-              integration, and a scalable system ready for future growth.
+              This setup gives your business a fast interface, clean API integration, and a scalable system ready for
+              future growth.
             </p>
           </div>
         </div>
       </section>
     </div>
-  );
+  )
 }

@@ -3,7 +3,9 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
-class Order(Base):
+from app.db.timeStampMixin import TimeStampMixin
+
+class Order(Base, TimeStampMixin):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -13,6 +15,6 @@ class Order(Base):
     status = Column(String(50), nullable=False, default="Pending")
     subtotal = Column(Numeric(10, 2), nullable=False, default=0)
     total_amount = Column(Numeric(10, 2), nullable=False, default=0)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     customer = relationship("Customer")

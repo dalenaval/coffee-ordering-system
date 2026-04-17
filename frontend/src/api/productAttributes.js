@@ -1,6 +1,6 @@
-import api from "./axios";
+import api from './axios'
 
 export const getProductAttributes = async (productId) => {
-  const response = await api.get(`/products/${productId}`);
-  return response?.data;
-};
+  const response = await api.get(`/products/${productId}/attributes`)
+  return response?.data
+}
