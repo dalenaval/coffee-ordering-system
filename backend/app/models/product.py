@@ -3,10 +3,7 @@ from sqlalchemy import Column, Numeric, Boolean, Text, DateTime, Integer, Foreig
 from app.db.session import Base
 from sqlalchemy.orm import relationship
 
-from app.db.softDeleteMixin import SoftDeleteMixin
-from app.db.timeStampMixin import TimeStampMixin
-
-class Product(Base, TimeStampMixin, SoftDeleteMixin):
+class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -15,9 +12,10 @@ class Product(Base, TimeStampMixin, SoftDeleteMixin):
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False, index=True)
     image_url = Column(Text, nullable=True)
     price = Column(Numeric(10,2), nullable=False, index=True)
-    stock = Column(Integer, default= 1) 
     is_available = Column(Boolean, default=True)
+    stock = Column(Integer, nullable=False, default=1)
+    low_stock_threshold = Column(Integer, nullable=False, default=5)
 
-    category = relationship("Category", back_populates="products", lazy="selectin")
-    product_attributes = relationship("ProductAttribute", back_populates="product", lazy="selectin")
+    category = relationship("Category", back_populates="products")
+    product_attributes = relationship("ProductAttribute", back_populates="product")
     cart_product = relationship('CartItem', back_populates="product")

@@ -1,6 +1,6 @@
 import api from "./axios";
 
-export const getOptionGroups = async () => {
-  const response = await api.get("option-groups/");
-  return response?.data;
+export const getEmployees = async () => {
+  const response = await api.get("/employees");
+  return response.data;
 };

@@ -15,6 +15,6 @@ class Order(Base, TimeStampMixin):
     status = Column(String(50), nullable=False, default="Pending")
     subtotal = Column(Numeric(10, 2), nullable=False, default=0)
     total_amount = Column(Numeric(10, 2), nullable=False, default=0)
-    
+    # created_at = Column(DateTime(timezone=True), server_default=func.now())
+
     customer = relationship("Customer")
-    

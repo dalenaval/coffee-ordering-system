@@ -16,6 +16,10 @@ from app.api.routes import payment
 from app.api.routes import dashboard
 from app.api.routes import menu
 from app.api.routes import cart
+from app.api.routes import reports
+from app.api.routes import system_control
+from app.api.routes import employees
+from app.api.routes import staff_scheduling
 
 Base.metadata.create_all(bind=engine)
 
@@ -47,6 +51,11 @@ app.include_router(payment.router)
 app.include_router(menu.router)
 app.include_router(dashboard.router)
 app.include_router(cart.router)
+app.include_router(dashboard.router)
+app.include_router(reports.router)
+app.include_router(system_control.router)
+app.include_router(employees.router)
+app.include_router(staff_scheduling.router)
 
 @app.get("/")
 def root():
