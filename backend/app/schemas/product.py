@@ -12,6 +12,7 @@ class ProductBase(BaseModel):
     category_id: int
     image_url: Optional[str] = Field(None, max_length=2048)
     stock:int
+    low_stock_threshold:int
     is_available: bool 
 class ProductCreate(ProductBase):
     pass
@@ -23,6 +24,7 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
     image_url: Optional[str] = Field(None, max_length=2048)
     stock:Optional[int]
+    low_stock_threshold:Optional[int]
     is_available: Optional[bool] = None
 
 # class ProductDetailsResponse(BaseModel):
@@ -37,6 +39,7 @@ class ProductResponse(BaseModel):
     price: Decimal
     image_url: Optional[str] = None
     stock:int
+    low_stock_threshold:int
     is_available: bool
 
     category: Optional[CategoryResponse] = None
