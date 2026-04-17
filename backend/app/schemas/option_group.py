@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, computed_field
 from typing import Optional
-from app.schemas.optionItems import OptionItemResponse
+from backend.app.schemas.option_items import OptionItemResponse
 from typing import List
 
 class OptionGroupBase(BaseModel):

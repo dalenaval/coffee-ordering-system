@@ -5,8 +5,8 @@ from typing import Dict, List, Any
 
 from app.db.deps import get_db
 from app.models.cart import Cart
-from app.models.cartItem import CartItem
-from app.models.cartItemOption import CartItemOption
+from backend.app.models.cart_item import CartItem
+from backend.app.models.cart_item_option import CartItemOption
 from app.db.auth import get_current_user
 from app.services.cart import format_cart
 

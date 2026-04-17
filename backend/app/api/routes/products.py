@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.db.deps import get_db
 from app.models.product import Product
-from app.models.productAttribute import ProductAttribute
-from app.models.optionGroup import OptionGroup
+from backend.app.models.product_attribute import ProductAttribute
+from backend.app.models.option_group import OptionGroup
 from app.models.category import Category
 
 from app.services.product import format_product

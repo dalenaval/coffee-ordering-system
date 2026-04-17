@@ -13,7 +13,7 @@ class CartItem(Base, TimeStampMixin):
     quantity = Column(Integer, default=1)
     unit_price = Column(Numeric(10,2))
     option_total = Column(Numeric(10,2))
-    total_price = Column(Numeric(10,2))
+    total_price = Column(Numeric(10,2))  # (unit price + option_total) * quantity
 
     product = relationship("Product", back_populates="cart_product")
     cart_list = relationship("Cart", back_populates="items")

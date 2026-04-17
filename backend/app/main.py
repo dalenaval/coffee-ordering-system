@@ -7,9 +7,9 @@ import app.models
 from app.api.routes import users
 from app.api.routes import products
 from app.api.routes import categories
-from app.api.routes import optionGroups
-from app.api.routes import optionItems
-from app.api.routes import productAttributes
+from backend.app.api.routes import option_groups
+from backend.app.api.routes import option_items
+from backend.app.api.routes import product_attributes
 from app.api.routes import orders
 from app.api.routes import order_items
 from app.api.routes import payment
@@ -42,9 +42,9 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(products.router)
 app.include_router(categories.router)
-app.include_router(optionGroups.router)
-app.include_router(optionItems.router)
-app.include_router(productAttributes.router)
+app.include_router(option_groups.router)
+app.include_router(option_items.router)
+app.include_router(product_attributes.router)
 app.include_router(orders.router)
 app.include_router(order_items.router)
 app.include_router(payment.router)
