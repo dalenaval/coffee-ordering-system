@@ -1,15 +1,22 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "@/store/useAuthStore";
 
 export default function RoleRoute({ children, allowedRoles = [] }) {
-  const rawUser = localStorage.getItem("user");
+  const { accessToken, user } = useAuth();
 
-  if (!rawUser) {
+  if (!accessToken) {
     return <Navigate to="/login" replace />;
   }
 
-  const user = JSON.parse(rawUser);
+  const role = user?.role?.toLowerCase();
 
-  if (!allowedRoles.includes(user.role)) {
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const normalizedRoles = allowedRoles.map((item) => item.toLowerCase());
+
+  if (!normalizedRoles.includes(role)) {
     return <Navigate to="/dashboard" replace />;
   }
 
