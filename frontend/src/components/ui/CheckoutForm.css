@@ -107,11 +107,28 @@
   font-size: 14px;
 }
 
+.summary-subTotal {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+  border-top: 2px solid #ddd;
+}
+.summary-vat-amount {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+}
+
 .summary-total {
   display: flex;
   justify-content: space-between;
   padding-top: 16px;
-  border-top: 2px solid #ddd;
   font-size: 18px;
   font-weight: 600;
   color: #333;
