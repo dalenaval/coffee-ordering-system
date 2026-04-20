@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Swal from "sweetalert2";
 import AdminLayout from "../../components/admin/AdminLayout";
 import {
   getSystemControls,
@@ -48,7 +49,9 @@ function prettifyKey(key) {
 
 export default function SystemControlPage() {
   const [settings, setSettings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -56,10 +59,15 @@ export default function SystemControlPage() {
 
   const fetchSettings = async () => {
     try {
+      setLoading(true);
+      setError("");
       const data = await getSystemControls();
-      setSettings(data);
-    } catch (error) {
-      console.error("Failed to load system settings:", error);
+      setSettings(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load system settings:", err);
+      setError("Failed to load system settings.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,12 +98,27 @@ export default function SystemControlPage() {
   const handleSave = async (item) => {
     try {
       setSavingId(item.id);
+
       await updateSystemControl(item.id, {
-        setting_value: item.setting_value,
+        setting_value: String(item.setting_value ?? ""),
       });
+
+      Swal.fire({
+        icon: "success",
+        title: "Saved",
+        text: `${prettifyKey(item.setting_key)} updated successfully.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       await fetchSettings();
-    } catch (error) {
-      console.error("Failed to update setting:", error);
+    } catch (err) {
+      console.error("Failed to update setting:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: err?.response?.data?.detail || "Failed to update system setting.",
+      });
     } finally {
       setSavingId(null);
     }
@@ -179,57 +202,64 @@ export default function SystemControlPage() {
         </p>
       </section>
 
-      <div className="admin-summary-grid">
-        <div className="admin-summary-card">
-          <h4>Total Settings</h4>
-          <h2>{settings.length}</h2>
-        </div>
-        <div className="admin-summary-card">
-          <h4>Order Controls</h4>
-          <h2>{groupedSettings["Order Controls"]?.length || 0}</h2>
-        </div>
-        <div className="admin-summary-card">
-          <h4>Payment Controls</h4>
-          <h2>{groupedSettings["Payment Controls"]?.length || 0}</h2>
-        </div>
-      </div>
+      {loading && <p>Loading system settings...</p>}
+      {error && <p className="error-text">{error}</p>}
 
-      <div className="system-control-grid">
-        {Object.entries(groupedSettings).map(([sectionName, items]) =>
-          items.length > 0 ? (
-            <div className="system-section-card" key={sectionName}>
-              <div className="system-section-head">
-                <h3>{sectionName}</h3>
-                <p>{items.length} setting{items.length > 1 ? "s" : ""}</p>
-              </div>
-
-              <div className="system-setting-list">
-                {items.map((item) => (
-                  <div className="system-setting-row" key={item.id}>
-                    <div className="system-setting-info">
-                      <h4>{prettifyKey(item.setting_key)}</h4>
-                      <p>{item.description || "No description available."}</p>
-                    </div>
-
-                    <div className="system-setting-action">
-                      {renderInput(item)}
-
-                      <button
-                        type="button"
-                        className="system-save-btn"
-                        onClick={() => handleSave(item)}
-                        disabled={savingId === item.id}
-                      >
-                        {savingId === item.id ? "Saving..." : "Save"}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+      {!loading && !error && (
+        <>
+          <div className="admin-summary-grid">
+            <div className="admin-summary-card">
+              <h4>Total Settings</h4>
+              <h2>{settings.length}</h2>
             </div>
-          ) : null
-        )}
-      </div>
+            <div className="admin-summary-card">
+              <h4>Order Controls</h4>
+              <h2>{groupedSettings["Order Controls"]?.length || 0}</h2>
+            </div>
+            <div className="admin-summary-card">
+              <h4>Payment Controls</h4>
+              <h2>{groupedSettings["Payment Controls"]?.length || 0}</h2>
+            </div>
+          </div>
+
+          <div className="system-control-grid">
+            {Object.entries(groupedSettings).map(([sectionName, items]) =>
+              items.length > 0 ? (
+                <div className="system-section-card" key={sectionName}>
+                  <div className="system-section-head">
+                    <h3>{sectionName}</h3>
+                    <p>{items.length} setting{items.length > 1 ? "s" : ""}</p>
+                  </div>
+
+                  <div className="system-setting-list">
+                    {items.map((item) => (
+                      <div className="system-setting-row" key={item.id}>
+                        <div className="system-setting-info">
+                          <h4>{prettifyKey(item.setting_key)}</h4>
+                          <p>{item.description || "No description available."}</p>
+                        </div>
+
+                        <div className="system-setting-action">
+                          {renderInput(item)}
+
+                          <button
+                            type="button"
+                            className="system-save-btn"
+                            onClick={() => handleSave(item)}
+                            disabled={savingId === item.id}
+                          >
+                            {savingId === item.id ? "Saving..." : "Save"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null
+            )}
+          </div>
+        </>
+      )}
     </AdminLayout>
   );
 }

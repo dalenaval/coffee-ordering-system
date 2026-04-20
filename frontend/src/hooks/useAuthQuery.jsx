@@ -23,39 +23,49 @@ export const useGetCurrentUser = () => {
 
 export const useAuthLogin = () => {
   const queryClient = useQueryClient()
-  const { user, setUserData, setAuthToken } = useAuth()
+  const { setUserData, setAuthToken } = useAuth()
   const clearCart = cartStore((state) => state.clearCart)
   const navigation = useNavigate()
 
   return useMutation({
     mutationFn: loginUser,
     onSuccess: async (response) => {
-      const token = response?.access_token
+      try {
+        const token = response?.access_token
 
-      clearCart()
-      setAuthToken(token)
+        clearCart()
 
-      if (!token) {
-        throw new Error('Failed to noToken')
-      }
-      await Promise.all([
-        queryClient.prefetchQuery({
+        if (!token) {
+          throw new Error('Failed to get token')
+        }
+
+        setAuthToken(token)
+
+        const me = await queryClient.fetchQuery({
           queryKey: ['me'],
           queryFn: getCurrentUser,
-        }),
-        queryClient.prefetchQuery({
+        })
+
+        if (!me) {
+          throw new Error('Failed to fetch current user')
+        }
+
+        setUserData(me)
+
+        await queryClient.prefetchQuery({
           queryKey: ['user_cart'],
           queryFn: getUserCart,
-        }),
-      ])
+        })
 
-      setUserData(queryClient.getQueryData(['me']))
-
-      if (!user && user.length === 0) {
-        throw new Error('Failed to fetch user')
+        loginRedirect(me?.role, navigation)
+      } catch (error) {
+        console.error('Login initialization failed:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Login succeeded but failed to initialize session.',
+        })
       }
-
-      loginRedirect(user?.role, navigation)
     },
     onError: (error) => {
       if (error?.response?.status === 401) {
