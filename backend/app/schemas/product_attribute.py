@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from backend.app.schemas.option_group import OptionGroupResponse
+from app.schemas.option_group import OptionGroupResponse
 from typing import  List
 
 class ProductAttributeBase(BaseModel):

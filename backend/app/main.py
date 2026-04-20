@@ -7,9 +7,9 @@ import app.models
 from app.api.routes import users
 from app.api.routes import products
 from app.api.routes import categories
-from backend.app.api.routes import option_groups
-from backend.app.api.routes import option_items
-from backend.app.api.routes import product_attributes
+from app.api.routes import option_groups
+from app.api.routes import option_items
+from app.api.routes import product_attributes
 from app.api.routes import orders
 from app.api.routes import order_items
 from app.api.routes import payment

@@ -2,8 +2,8 @@
 from fastapi import APIRouter, Depends,HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 from app.db.deps import get_db
-from backend.app.models.option_group import OptionGroup
-from backend.app.schemas.option_group import OptionGroupResponse, OptionGroupCreate
+from app.models.option_group import OptionGroup
+from app.schemas.option_group import OptionGroupResponse, OptionGroupCreate
 from sqlalchemy import select
 
 router = APIRouter(prefix ="/option-groups", tags=["OptionGroup"])

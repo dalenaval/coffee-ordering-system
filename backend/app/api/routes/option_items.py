@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
-from backend.app.models.option_items import OptionItem
-from backend.app.schemas.option_items import OptionItemResponse, OptionItemCreate
+from app.models.option_items import OptionItem
+from app.schemas.option_items import OptionItemResponse, OptionItemCreate
 
 router = APIRouter(prefix="/option-items", tags=["OptionItem"])
 
