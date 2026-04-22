@@ -2,6 +2,7 @@ import './PaymentMethod.css'
 import GcashIconPath from '@/assets/gcash.svg'
 import MayaIconPath from '@/assets/maya.svg'
 import VisaIconPath from '@/assets/visa.svg'
+import QRPHPath from '@/assets/qrph.svg'
 import { Wallet } from 'lucide-react'
 import PaymentIcon from './PaymentIcon'
 
@@ -20,7 +21,13 @@ export default function PaymentMethods({ selected, onChange }) {
       id: 'cash',
       label: 'Cash',
       description: 'Pay with cash upon pickup or delivery',
-      icon: <Wallet />,
+      icon: <Wallet color=" #8b8680" />,
+    },
+    {
+      id: 'qrph',
+      label: 'QR PH',
+      description: 'Scan to pay via QR PH',
+      icon: <PaymentIcon altName={'qrph'} icon={QRPHPath} />,
     },
     {
       id: 'gcash',
@@ -30,11 +37,12 @@ export default function PaymentMethods({ selected, onChange }) {
       badge: 'Popular',
     },
     {
-      id: 'maya',
+      id: 'paymaya',
       label: 'Maya',
       description: 'Pay via Maya e-wallet',
       icon: <PaymentIcon altName={'maya'} icon={MayaIconPath} />,
     },
+
     {
       id: 'card',
       label: 'Credit / Debit Card',
@@ -54,7 +62,7 @@ export default function PaymentMethods({ selected, onChange }) {
         {options.map((opt) => (
           <button
             key={opt.id}
-            onClick={() => onChange(opt.id)}
+            onClick={() => onChange(opt.id, 'payment_method')}
             className={`payment-option ${selected === opt.id ? 'selected' : ''}`}
           >
             <div className="payment-icon">{opt.icon}</div>
@@ -82,7 +90,7 @@ export default function PaymentMethods({ selected, onChange }) {
           </div>
         )}
 
-        {(selected === 'gcash' || selected === 'maya') && (
+        {/* {(selected === 'gcash' || selected === 'maya') && (
           <div className="payment-form">
             <div className="form-field">
               <label className="form-label">{selected === 'gcash' ? 'GCash' : 'Maya'} Mobile Number</label>
@@ -90,7 +98,7 @@ export default function PaymentMethods({ selected, onChange }) {
               <p className="payment-form-hint">A payment request will be sent to this number.</p>
             </div>
           </div>
-        )}
+        )}*/}
       </div>
 
       <div className="payment-footer">

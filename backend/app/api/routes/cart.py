@@ -1,38 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session, selectinload
 
-from typing import Dict, List, Any
-
 from app.db.deps import get_db
 from app.models.cart import Cart
-from backend.app.models.cart_item import CartItem
-from backend.app.models.cart_item_option import CartItemOption
-from app.db.auth import get_current_user
-from app.services.cart import format_cart
+from app.models.cart_item import CartItem
+from app.models.cart_item_option import CartItemOption
+from app.services.auth import get_current_user
+from app.services.cart import format_cart, flatten_list, get_or_create_cart
 
 
 router = APIRouter(prefix='/cart', tags=['Cart'] )
-
-def flatten_options(options: Dict[str, Any]) -> List[Dict[str, Any]]:
-    flat_list = []
-    for value in options.values():
-        if isinstance(value, list):
-            flat_list.extend(value)
-        elif isinstance(value, dict):
-            flat_list.append(value)
-    return flat_list
-
-
-def get_or_create_cart(db:Session, user_id : int) -> Cart:
-    cart = db.query(Cart).filter(Cart.user_id == user_id).first()
-
-    if not cart:
-        cart = Cart(user_id = user_id)
-        db.add(cart)
-        db.commit()
-        db.refresh(cart)
-
-    return cart
 
 
 @router.post('/add-to-cart')
@@ -41,7 +18,7 @@ def add_products_to_cart( payload: dict,user_id = Depends(get_current_user), db:
     try:
         cart = get_or_create_cart(db, user_id)
 
-        option_items = flatten_options(payload.get("options"))
+        option_items = flatten_list(payload.get("options"))
 
         option_total = sum(float(item.get("price_modifier", 0)) for item in option_items)
 
@@ -110,7 +87,7 @@ def update_cart_item(payload: dict, cart_item_id:int, user_id = Depends(get_curr
     cart_item.total_price = item_total_price
 
     db.commit()
-    db.refresh(cart_item)
+    # db.refresh(cart_item)
 
 
 @router.delete('/{cart_item_id}')

@@ -10,7 +10,7 @@ const OrderTypeSelector = ({ selectedType, onSelectType }) => {
           <button
             key={type.id}
             className={`order-type-option ${selectedType === type.value ? 'selected' : ''}`}
-            onClick={() => onSelectType(type.value)}
+            onClick={() => onSelectType(type.value, 'order_type')}
           >
             <span className="order-type-icon">{type.icon}</span>
             <span className="order-type-name">{type.name}</span>

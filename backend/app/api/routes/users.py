@@ -5,7 +5,7 @@ from app.db.deps import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenSchema,UserDetailsResponse
 from app.core.security import verify_password, create_access_token,hash_password
-from app.db.auth import get_current_user
+from app.services.auth import get_current_user
 
 
 

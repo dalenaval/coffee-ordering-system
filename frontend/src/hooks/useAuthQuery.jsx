@@ -36,7 +36,7 @@ export const useAuthLogin = () => {
       setAuthToken(token)
 
       if (!token) {
-        throw new Error('Failed to noToken')
+        throw new Error('Unauthorized, invalid token')
       }
       await Promise.all([
         queryClient.prefetchQuery({

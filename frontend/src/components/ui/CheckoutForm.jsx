@@ -3,32 +3,44 @@ import OrderTypeSelector from './OrderTypeSelector'
 import './CheckoutForm.css'
 import { useCart } from '@/utils/useCart'
 import PaymentMethods from './PaymentMethod'
+import { useAuth } from '@/store/useAuthStore'
+import { useCheckout } from '@/hooks/useCheckout'
 
-function CheckoutForm({ onClose, onOrderComplete }) {
+function CheckoutForm({ onClose }) {
   const { cart, total, removeItem, updateItemQuantity } = useCart()
+  const { user, isAuthenticated } = useAuth()
+  const { mutate: checkout } = useCheckout()
 
   const [form, setForm] = useState({
-    email: '',
+    order_type: 'dine-in',
+    name: isAuthenticated ? user?.full_name : '',
+    email: isAuthenticated ? user?.email : '',
     phone: '',
     payment_method: 'cash',
     cart_items: cart,
   })
-  const [orderType, setOrderType] = useState('dine-in')
-  const [paymentMethod, setPaymentMethod] = useState('')
+
   const [deliveryAddress, setDeliveryAddress] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = () => {
-    const payload = {}
-    console.log(form, cart)
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    checkout(form)
   }
 
   const handleChange = (e) => {
-    console.log('target', e)
+    console.log('target', e.target)
     setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }))
+  }
+
+  const handleSelect = (value, key) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
     }))
   }
 
@@ -50,7 +62,7 @@ function CheckoutForm({ onClose, onOrderComplete }) {
         <h2>Checkout</h2>
 
         <form onSubmit={handleSubmit}>
-          <OrderTypeSelector selectedType={orderType} onSelectType={setOrderType} />
+          <OrderTypeSelector selectedType={form.order_type} onSelectType={handleSelect} />
 
           <div className="form-section">
             <div className="form-group">
@@ -58,24 +70,34 @@ function CheckoutForm({ onClose, onOrderComplete }) {
               <input
                 type="text"
                 id="name"
+                name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Enter your name"
                 required
+                disabled={isAuthenticated}
               />
             </div>
 
             <div className="form-group">
               <label htmlFor="phone">Email Address</label>
-              <input type="email" id="email" placeholder="(Optional for digital receipt)" onChange={handleChange} />
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="(Optional for digital receipt)"
+                value={form.email}
+                onChange={handleChange}
+                disabled={isAuthenticated}
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="phone">Phone Number</label>
-              <input type="tel" id="phone" value={form.email} onChange={handleChange} placeholder="(Optional)" />
+              <input type="tel" id="phone" name="phone" onChange={handleChange} placeholder="(Optional)" />
             </div>
 
-            {orderType === 'delivery' && (
+            {form.order_type === 'delivery' && (
               <div className="form-group">
                 <label htmlFor="address">Delivery Address *</label>
                 <textarea
@@ -89,7 +111,7 @@ function CheckoutForm({ onClose, onOrderComplete }) {
               </div>
             )}
           </div>
-          <PaymentMethods selected={paymentMethod} onChange={setPaymentMethod} />
+          <PaymentMethods selected={form.payment_method} onChange={handleSelect} />
 
           <div className="order-summary">
             <h3>Order Summary</h3>

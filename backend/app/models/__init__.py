@@ -7,6 +7,7 @@ from .product import Product
 from .customers import Customer
 from .orders import Order
 from .order_item import OrderItem
+from .order_item_option import OrderItemOption
 from .payment import Payment
 from .system_setting import SystemSetting
 from .employee import Employee
