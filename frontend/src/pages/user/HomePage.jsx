@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Footer from '@/components/layout/Footer'
 import Header from '@/components/layout/Header'
+import { cartStore } from '@/store/useCartStore'
 import ProductModal from '@/components/ui/ProductModal'
 import ProductCatalog from '@/components/ui/ProductCatalog'
 import Cart from '@/components/ui/Cart'
@@ -19,6 +20,7 @@ import { apiUrl } from '@/config/config'
 import { useSearchParams } from 'react-router-dom'
 
 const HomePage = () => {
+  const cartItems = cartStore((state) => state.cartItems)
   const [params] = useSearchParams()
   const isCheckOutOpen = useOrderStore((state) => state.isCheckOutOpen)
   const setIsCheckOutOpen = useOrderStore((state) => state.setIsCheckOutOpen)
