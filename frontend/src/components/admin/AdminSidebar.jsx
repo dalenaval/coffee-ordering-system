@@ -1,20 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getLowStockProducts } from "../../api/productService";
+import { useAuth } from "@/store/useAuthStore";
 import "./AdminLayout.css";
 
 export default function AdminSidebar() {
   const navigate = useNavigate();
-  const rawUser = localStorage.getItem("user");
+  const { user, clearAuth } = useAuth();
 
-  let role = "staff";
-  let fullName = "User";
-
-  if (rawUser) {
-    const user = JSON.parse(rawUser);
-    role = user.role?.toLowerCase() || "staff";
-    fullName = user.full_name || "User";
-  }
+  const role = user?.role?.toLowerCase() || "staff";
+  const fullName = user?.full_name || "User";
 
   const [lowStockCount, setLowStockCount] = useState(0);
 
@@ -32,7 +27,9 @@ export default function AdminSidebar() {
   };
 
   const handleLogout = () => {
+    clearAuth?.();
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     navigate("/login");
   };
 

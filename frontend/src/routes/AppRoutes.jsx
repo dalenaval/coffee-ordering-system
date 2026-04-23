@@ -18,7 +18,17 @@ export default function AppRoutes() {
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
+
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["customer"]}>
+                <HomePage />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected - all logged-in users */}
         <Route

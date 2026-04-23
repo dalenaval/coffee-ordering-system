@@ -23,6 +23,7 @@ from app.payments.service import PaymentService
 
 from app.core.config import RESEND_API_KEY
 from app.core.config import SECRET_KEY, GENERATE_QR_URL
+from app.utils.system_settings import get_system_settings_map
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 

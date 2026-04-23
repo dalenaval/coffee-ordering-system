@@ -34,3 +34,30 @@
     font-size: 48px;
   }
 }
+
+.system-banner {
+  margin: 16px auto 24px;
+  padding: 14px 18px;
+  max-width: 1200px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.system-banner-warning {
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+}
+
+.system-empty-state {
+  margin: 32px auto;
+  padding: 40px 24px;
+  max-width: 900px;
+  border-radius: 18px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
