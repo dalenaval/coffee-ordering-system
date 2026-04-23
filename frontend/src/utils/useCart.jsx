@@ -3,7 +3,9 @@ import { useAuth } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
 
 export const useCart = () => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+
+  const hasCart = isAuthenticated && user?.role === 'customer'
 
   const { cartItems, cartTotal, addItem, clearCart, removeCart, updateQuantity } = useCartStore()
 
@@ -13,7 +15,7 @@ export const useCart = () => {
 
   const updateItemMutation = useUpdateQuantity()
 
-  const { data, isLoading } = useGetUserCart(isAuthenticated)
+  const { data, isLoading } = useGetUserCart(hasCart)
 
   const addToCart = (item) => {
     if (isAuthenticated) {
@@ -25,9 +27,9 @@ export const useCart = () => {
 
   const removeItem = (item) => {
     if (isAuthenticated) {
-      return removeItemMutation.mutate(item.cart_item_id)
+      return removeItemMutation.mutate(item.product_code)
     } else {
-      removeCart(item?.product_id)
+      removeCart(item?.product_code)
     }
   }
 
@@ -38,7 +40,7 @@ export const useCart = () => {
         quantity,
       })
     } else {
-      updateQuantity(item?.product_id, quantity)
+      updateQuantity(item?.product_code, quantity)
     }
   }
 

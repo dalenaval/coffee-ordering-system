@@ -34,7 +34,7 @@ def generate_receipt(order, order_items, payment):
         <hr/>
 
         <p>
-            <strong>Order ID:</strong> {order.order_id}<br/>
+            <strong>Order ID:</strong> {order.order_no}<br/>
             <strong>Date:</strong> {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}<br/>
             <strong>Payment:</strong> {payment.payment_method.upper()}<br/>
             <strong>Reference:</strong> {payment.reference_no or 'N/A'}

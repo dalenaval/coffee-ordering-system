@@ -1,6 +1,5 @@
 import { calculateLineTotal } from '@/utils/calculateLineTotal'
 import { computeCartTotal } from '@/utils/computeCartTotal'
-import { generateProductKey } from '@/utils/generateProductKey'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
@@ -12,14 +11,14 @@ export const cartStore = create(
       cartTotal: 0,
 
       addItem: (item) => {
-        const { product_id, options, quantity } = item
+        const { productCode, options, quantity } = item
 
-        const productKey = generateProductKey(product_id, options)
+        const optionTotal = calculateLineTotal(0, options)
         const basePrice = calculateLineTotal(item.unit_price, options)
         const lineTotal = basePrice * quantity
 
         set((state) => {
-          const existingItemIndex = state.cartItems.findIndex((cartItem) => cartItem.product_id === productKey)
+          const existingItemIndex = state.cartItems.findIndex((cartItem) => cartItem.product_code === productCode)
 
           if (existingItemIndex !== -1) {
             const updatedItems = [...state.cartItems]
@@ -37,8 +36,8 @@ export const cartStore = create(
 
           const newItem = {
             ...item,
-            product_id: productKey,
             base_price: basePrice,
+            option_total: optionTotal,
             line_total: lineTotal,
           }
           const updatedCart = [...state.cartItems, newItem]
@@ -46,11 +45,11 @@ export const cartStore = create(
         })
       },
 
-      updateQuantity: (product_id, quantity) => {
-        if (quantity <= 0) return get().removeCart(product_id)
+      updateQuantity: (productCode, quantity) => {
+        if (quantity <= 0) return get().removeCart(productCode)
 
         set((state) => {
-          const findCartIndex = state.cartItems.findIndex((cartItem) => cartItem.product_id === product_id)
+          const findCartIndex = state.cartItems.findIndex((cartItem) => cartItem.product_code === productCode)
           console.log('findCartIndex', findCartIndex)
           if (findCartIndex === -1) return { cartItems: state.cartItems }
 
@@ -67,8 +66,8 @@ export const cartStore = create(
         })
       },
 
-      removeCart: (product_id) => {
-        const updatedCart = get().cartItems.filter((item) => item.product_id !== product_id)
+      removeCart: (productCode) => {
+        const updatedCart = get().cartItems.filter((item) => item.product_code !== productCode)
         set({ cartItems: updatedCart, cartTotal: computeCartTotal(updatedCart) })
       },
       clearCart: () => {

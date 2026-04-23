@@ -61,6 +61,7 @@ export default function PaymentMethods({ selected, onChange }) {
       <div className="payment-options">
         {options.map((opt) => (
           <button
+            type="button"
             key={opt.id}
             onClick={() => onChange(opt.id, 'payment_method')}
             className={`payment-option ${selected === opt.id ? 'selected' : ''}`}

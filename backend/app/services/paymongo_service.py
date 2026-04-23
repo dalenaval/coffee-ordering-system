@@ -1,7 +1,8 @@
 import requests
 import base64
 
-from app.core.config import PAYMONGO_SECRET_KEY,PAYMONGO_BASE_URL
+from app.payments.gateway import PaymentGateway
+from app.core.config import PAYMONGO_SECRET_KEY,PAYMONGO_BASE_URL, FRONTEND_URL
 
 def get_auth_header():
     key = f"{PAYMONGO_SECRET_KEY}:"
@@ -11,13 +12,12 @@ def get_auth_header():
         "Content-type" : "application/json",
     }
 
-class PayMongoService:
-
+class PayMongoService(PaymentGateway):
     BASE_URL = PAYMONGO_BASE_URL
 
-    @staticmethod
-    def create_payment_intent(amount, payment_method_types = ["gcash", "paymaya", "card"]):
-        url = f"{PayMongoService.BASE_URL}/payment_intents"
+    def create_payment_intent(self, amount: float) -> dict:
+        url = f"{self.BASE_URL}/payment_intents"
+        payment_method_types = ["gcash", "paymaya", "card"]
 
         payload = {
             "data":{
@@ -28,12 +28,36 @@ class PayMongoService:
                 }
             }
         }
-
+    
         response = requests.post(url, json=payload, headers=get_auth_header())
+
+        if response.status_code not in [200, 201]:
+            raise Exception(f"PayMongo Error: {response.text}")
+        
         return response.json()
     
+
+ 
+    def confirm_payment_intent(self, payload: dict) -> dict:
+        
+        try:
+            event_type = payload['data']['attributes']['type']
+            
+            if event_type != "payment.paid":
+                return {"status": "ignored"}
+            
+            payment_intent_id  = payload["data"]["attributes"]["data"]["attributes"]["payment_intent_id"]
+
+            return {
+                "status":"paid",
+                "payment_intent_id":payment_intent_id
+            }
+        except KeyError:
+            raise ValueError("Invalid webhook payload")
+    
+                
     @staticmethod
-    def create_payment_method(type, details):
+    def create_payment_method( type:str, details):
         url = f"{PayMongoService.BASE_URL}/payments_methods"
 
         payload = {
@@ -45,18 +69,27 @@ class PayMongoService:
             }
         }
 
+        print(f"intent_id", details)
+
         response = requests.post(url, json=payload, headers=get_auth_header())
         return response.json()
     
-    @staticmethod
-    def attach_payment_intent(intent_id, payment_method_id):
-        url = f"{PayMongoService.BASE_URL}/payment_intents.{intent_id}/attach"
+    
+    def attach_payment_intent(
+            self, 
+            intent_id : str, 
+            payment_method_id : str, 
+            return_url: str = None):
+        
+        print(f"intent_id", intent_id)
+
+        url = f"{self.BASE_URL}/payment_intents/{intent_id}/attach"
 
         payload = {
             "data":{
                 "attributes":{
                     "payment_method": payment_method_id,
-                    "return_url": "http://localhost:5173/payment-success"
+                    "return_url": return_url  or f"{FRONTEND_URL}/home"
 
                 }
             }

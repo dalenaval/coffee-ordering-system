@@ -28,6 +28,7 @@ def format_cart(cart:Cart)->dict:
                 'product_id': product.id,
                 'quantity':cart_item.quantity,
                 'product_name': product.name,
+                'product_code': cart_item.product_code,
                 'cart_item_id':cart_item.id,
                 'product_image': product.image_url,
                 'unit_price': product.price,

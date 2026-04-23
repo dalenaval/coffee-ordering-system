@@ -10,6 +10,7 @@ class CartItem(Base, TimeStampMixin):
     id=Column(Integer, primary_key=True, index=True)
     cart_id = Column(Integer, ForeignKey('cart.id'), index=True )
     product_id = Column(Integer, ForeignKey('products.id'), nullable=False, index=True)
+    product_code = Column(String(50), index=True)
     quantity = Column(Integer, default=1)
     unit_price = Column(Numeric(10,2))
     option_total = Column(Numeric(10,2))

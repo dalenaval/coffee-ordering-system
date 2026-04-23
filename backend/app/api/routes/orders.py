@@ -8,6 +8,7 @@ from app.models.order_item import OrderItem
 from app.models.order_item_option import OrderItemOption
 from app.models.payment import Payment
 from app.models.stock_log import StockLog
+from app.services.paymongo_service import PayMongoService
 
 import resend
 import base64
@@ -71,7 +72,10 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/checkout")
-async def create_order(payload:dict, user_id = Depends(get_current_user), db : Session = Depends(get_db)):
+async def create_order(
+    payload:dict, 
+    user_id = Depends(get_current_user), 
+    db : Session = Depends(get_db)):
 
     if user_id:
             cart = db.query(Cart).filter_by(user_id = user_id).first()
@@ -83,28 +87,26 @@ async def create_order(payload:dict, user_id = Depends(get_current_user), db : S
 
         next_sequence = 1
 
-        if last_order and last_order.order_id:
-            last_number = int(last_order.order_id[3:])
+        if last_order and last_order.order_no:
+            last_number = int(last_order.order_no[3:])
 
             next_sequence = last_number + 1
 
         new_order_id = f"ORD{next_sequence:03d}"
         order_items = payload.get('cart_items', [])
 
-        print(f"order item", order_items)
         order = Order(
             order_no = new_order_id,
             user_id = user_id,
             email = payload.get("email") if payload.get("email") != "" else None,
             phone = payload.get("phone") if payload.get("phone") != "" else None,
             order_type = payload.get("order_type"),
-            status = "Pending",
+            status = "pending",
             subtotal = payload.get("subtotal"),
-            total_amount = payload.get("total_amount")
+            total_amount = float(payload.get("total_amount"))
         )
         db.add(order)
         db.flush()
-        print(order.__dict__)
         for order_item in order_items:
             new_order_item = OrderItem(
                 order_id = order.id,
@@ -117,18 +119,14 @@ async def create_order(payload:dict, user_id = Depends(get_current_user), db : S
 
             db.add(new_order_item)
             db.flush()
-            print(f"new_order_itemr", new_order_item.__dict__)
-
 
             for order_item_option in order_item.get("options"):
-                print(f"new_order_option", order_item_option.__dict__)
                 new_order_option = OrderItemOption(
                     order_item_id = new_order_item.id,
-                    option_id = order_item_option.get("id"),
+                    option_item_id = order_item_option.get("id"),
                     option_name = order_item_option.get("name"),
                     option_price = order_item_option.get("price_modifier")
                 )
-                print(f"order_item_option", order_item_option)
                 db.add(new_order_option)
                 db.flush()
 
@@ -138,22 +136,72 @@ async def create_order(payload:dict, user_id = Depends(get_current_user), db : S
             db.delete(item)
             db.flush()
 
-        db.commit()
 
-        payment_result = PaymentService(
-            order,
-            payload.get('payment_method'),
+        payment_result = PaymentService.create_payment(
+            order, 
+            payload.get('payment_method'), 
             db
         )
+        
+        redirect_url = None
+        if payload.get('payment_method') in ['gcash', 'paymaya']:
+            payment_method_id = payload.get('payment_method_id')
 
-        return {
-        "order_id": order.id,
-        "payment": payment_result
-        }
+            print(f"generating redirect pmi", payment_method_id)
+
+            if not payment_method_id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="payment_method_id is required for e‑wallet payments"
+                )
+            
+            service = PayMongoService()
+           
+
+            attach_response  = service.attach_payment_intent(
+                intent_id=payment_result['payment_intent_id'],
+                payment_method_id = payment_method_id
+            )
+            print(f"done attach", attach_response)
+            if 'data' in attach_response:
+                print(f"within attach if start")
+
+                next_action = attach_response['data']['attributes'].get('next_action')
+
+                print(f"next_action", next_action)
+
+                if next_action and next_action.get('type') == 'redirect':
+                    redirect_url = next_action['redirect']['url']
+                    print(f"redirect_url", redirect_url)
+
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                        detail="No redirect URL received"
+                    )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="No redirect URL received from PayMongo"
+                )
+            
+        db.commit()
+        print(f"done commit redirect_url", redirect_url)
+        response_data = {
+            "order_id": order.id,
+            "payment": payment_result
+            }
+        if redirect_url:
+            response_data["redirect_url"] = redirect_url
+        
+        print(f"response_data", response_data)
+
+        return response_data
 
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    
     
 
 
@@ -189,7 +237,7 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
             selectinload(Order.items)
             .selectinload(OrderItem.options),
             selectinload(Order.payment)
-        )
+        ).filter(Order.id == order_id)
         .first())
 
     if not order:

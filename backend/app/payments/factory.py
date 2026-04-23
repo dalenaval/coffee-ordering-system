@@ -1,20 +1,23 @@
-from .cash import CashPaymentStrategy
-from .paymongo import PayMongoPaymentStrategy
-from .qrph import QRPHPaymentStrategy
+from app.payments.cash import CashPaymentStrategy
+from app.payments.paymongo import PayMongoPaymentStrategy
+from app.payments.qrph import QRPHPaymentStrategy
+from app.payments.base import PaymentStrategy
+from app.services.paymongo_service import PayMongoService
 
 class PaymentFactory:
 
     @staticmethod
-    def get(method:str):
+    def get(method: str):
 
-        if method == "cash":
+        if method.lower() in ["gcash", "paymaya", "card"]:
+            return PayMongoPaymentStrategy(PayMongoService())
+
+        elif method.lower() == "cash":
             return CashPaymentStrategy()
-        
-        if method == "qrph":
+
+        elif method.lower() == "qrph":
             return QRPHPaymentStrategy()
-        
-        if method == "paymongo":
-            return PayMongoPaymentStrategy()
-        
-        raise Exception('Invalid payment method')
+
+        raise ValueError("Invalid payment method")
     
+

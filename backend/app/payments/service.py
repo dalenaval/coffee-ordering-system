@@ -1,4 +1,4 @@
-from .factory import PaymentFactory
+from app.payments.factory import PaymentFactory
 
 class PaymentService:
 
@@ -7,7 +7,7 @@ class PaymentService:
 
         strategy = PaymentFactory.get(payment_method)
 
-        result = strategy.create_payment(order, db)
+        result = strategy.create_payment(order, payment_method,db)
 
         return result
     

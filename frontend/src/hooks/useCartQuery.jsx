@@ -1,6 +1,7 @@
 import { addToCart, getUserCart, removeCartItem, updateQuantity } from '@/api/cartService'
 import { useErrorStore } from '@/store/useErrorStore'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Swal from 'sweetalert2'
 
 export const useGetUserCart = (isAuthenticated) => {
   return useQuery({

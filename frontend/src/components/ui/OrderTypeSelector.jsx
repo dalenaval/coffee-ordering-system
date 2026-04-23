@@ -8,6 +8,7 @@ const OrderTypeSelector = ({ selectedType, onSelectType }) => {
       <div className="order-type-options">
         {orderTypes.map((type) => (
           <button
+            type="button"
             key={type.id}
             className={`order-type-option ${selectedType === type.value ? 'selected' : ''}`}
             onClick={() => onSelectType(type.value, 'order_type')}

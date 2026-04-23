@@ -7,30 +7,40 @@ import { useAuth } from '@/store/useAuthStore'
 import { useCheckout } from '@/hooks/useCheckout'
 
 function CheckoutForm({ onClose }) {
-  const { cart, total, removeItem, updateItemQuantity } = useCart()
+  const { cart, total } = useCart()
+
+  const vatPrice = useMemo(() => {
+    return (parseFloat(total) * 0.12).toFixed(2)
+  }, [total])
+
+  const totalAmout = useMemo(() => {
+    return (parseFloat(total) + parseFloat(vatPrice)).toFixed(2)
+  }, [vatPrice, total])
+
   const { user, isAuthenticated } = useAuth()
-  const { mutate: checkout } = useCheckout()
+  const { mutate: checkout, isPending, isError, error } = useCheckout()
 
   const [form, setForm] = useState({
     order_type: 'dine-in',
     name: isAuthenticated ? user?.full_name : '',
     email: isAuthenticated ? user?.email : '',
     phone: '',
-    payment_method: 'cash',
-    cart_items: cart,
+    payment_method: '',
   })
 
   const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    checkout(form)
+    const payload = {
+      ...form,
+      total_amount: totalAmout,
+      cart_items: cart,
+    }
+    checkout(payload)
   }
 
   const handleChange = (e) => {
-    console.log('target', e.target)
     setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -43,14 +53,9 @@ function CheckoutForm({ onClose }) {
       [key]: value,
     }))
   }
+  console.log('error', error?.config)
 
-  const vatPrice = useMemo(() => {
-    return (parseFloat(total) * 0.12).toFixed(2)
-  }, [total])
-
-  const totalAmout = useMemo(() => {
-    return (parseFloat(total) + parseFloat(vatPrice)).toFixed(2)
-  }, [vatPrice, total])
+  if (!cart && cart.length <= 0) return null
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -75,7 +80,7 @@ function CheckoutForm({ onClose }) {
                 onChange={handleChange}
                 placeholder="Enter your name"
                 required
-                disabled={isAuthenticated}
+                readOnly={isAuthenticated}
               />
             </div>
 
@@ -88,7 +93,7 @@ function CheckoutForm({ onClose }) {
                 placeholder="(Optional for digital receipt)"
                 value={form.email}
                 onChange={handleChange}
-                disabled={isAuthenticated}
+                readOnly={isAuthenticated}
               />
             </div>
 
@@ -140,10 +145,10 @@ function CheckoutForm({ onClose }) {
             </div>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {/* {isError && <div className="error-message">{error}</div>} */}
 
-          <button type="submit" className="submit-order-button" disabled={isSubmitting}>
-            {isSubmitting ? 'Placing Order...' : 'Place Order'}
+          <button type="submit" className="submit-order-button" disabled={isPending}>
+            {isPending ? 'Placing Order...' : 'Place Order'}
           </button>
         </form>
       </div>

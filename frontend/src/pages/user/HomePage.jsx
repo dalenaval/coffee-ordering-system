@@ -10,27 +10,35 @@ import './HomePage.css'
 import CheckoutForm from '@/components/ui/CheckoutForm'
 
 // Stored data in local | zustand
-import { cartStore } from '@/store/useCartStore'
 import { useAuth } from '@/store/useAuthStore'
 import UserMenu from '@/components/ui/UserMenu'
 import { useSessionStore } from '@/store/useSessionStore'
+import { useOrderStore } from '@/store/useOrderStore'
+import { apiUrl } from '@/config/config'
+import { useSearchParams } from 'react-router-dom'
 
 const HomePage = () => {
-  const cartItems = cartStore((state) => state.cartItems)
-  const initializeSession = useSessionStore((state) => state.initializeSession)
+  const [params] = useSearchParams()
+  const isCheckOutOpen = useOrderStore((state) => state.isCheckOutOpen)
+  const setIsCheckOutOpen = useOrderStore((state) => state.setIsCheckOutOpen)
 
   const { user, isAuthenticated } = useAuth()
 
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      initializeSession()
+    const paymentIntentId = params.get('payment_intent_id')
+
+    if (paymentIntentId) {
+      // Call backend to verify payment status
+      console.log('Verify payment:', paymentIntentId)
+
+      // Example:
+      // fetch(`/api/payments/verify/${paymentIntentId}`)
     }
-  }, [initializeSession, isAuthenticated])
+  }, [params])
 
   const handleSelectedProduct = (product) => {
     setSelectedProduct(product)
@@ -38,12 +46,12 @@ const HomePage = () => {
 
   const handleCheckout = () => {
     setIsCartOpen(false)
-    setIsCheckoutOpen(true)
+    setIsCheckOutOpen(true)
   }
 
   const handleOrderComplete = (order) => {
     console.log('order:', order)
-    setIsCheckoutOpen(false)
+    setIsCheckOutOpen(false)
   }
 
   return (
@@ -61,12 +69,8 @@ const HomePage = () => {
       {selectedProduct && <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onCheckout={handleCheckout} />
       <UserMenu isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} onCheckout={handleCheckout} />
-      {isCheckoutOpen && (
-        <CheckoutForm
-          cartItems={cartItems}
-          onClose={() => setIsCheckoutOpen(false)}
-          onOrderComplete={handleOrderComplete}
-        />
+      {isCheckOutOpen && (
+        <CheckoutForm onClose={() => setIsCheckOutOpen(false)} onOrderComplete={handleOrderComplete} />
       )}
       <Footer />
     </div>

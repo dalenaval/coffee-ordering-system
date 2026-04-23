@@ -13,7 +13,7 @@ const orderTypes = [
     name: 'Takeout',
     icon: <ShoppingBag />,
     description: 'Pick up your order to go',
-    value: 'takeout',
+    value: 'take-out',
   },
   {
     id: 3,
