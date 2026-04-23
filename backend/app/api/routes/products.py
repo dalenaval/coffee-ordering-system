@@ -28,6 +28,8 @@ def get_products(db: Session = Depends(get_db)):
             "description": product.description,
             "category": category.name,
             "price": float(product.price),
+            "stock": float(product.stock),
+            "low_stock_threshold": float(product.low_stock_threshold),
             "is_available": product.is_available,
         }
         for product, category in rows
