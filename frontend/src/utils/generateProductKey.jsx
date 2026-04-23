@@ -3,5 +3,5 @@ export const generateProductKey = (productId, options = {}) => {
     .map((option) => option.id)
     .sort((a, b) => a - b)
     .join('-')
-  return `${productId}_${optionString || 'base'}`
+  return `${productId}_${optionString ?? 'base'}`
 }

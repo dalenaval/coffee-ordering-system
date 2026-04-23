@@ -1,4 +1,4 @@
-import { useAuth, useAuthStore } from '@/store/useAuthStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 

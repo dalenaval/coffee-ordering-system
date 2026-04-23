@@ -5,6 +5,7 @@ from typing import Optional
 class CreateCartItem(BaseModel):
     cart_id = int
     product_id = int
+    product_code = str
     quantity = int
     unit_price = Decimal
     option_total = Decimal

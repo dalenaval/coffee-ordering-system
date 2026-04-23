@@ -4,9 +4,9 @@ import { useCart } from '@/utils/useCart'
 
 const Cart = ({ isOpen, onClose, onCheckout }) => {
   const { cart, total, removeItem, updateItemQuantity } = useCart()
-
   if (!isOpen) return null
 
+  console.log('cart', cart)
   return (
     <div className="cart-overlay" onClick={onClose}>
       <div className="cart-sidebar" onClick={(e) => e.stopPropagation()}>
@@ -23,8 +23,8 @@ const Cart = ({ isOpen, onClose, onCheckout }) => {
               <p className="cart-empty-hint">Add items to get started!</p>
             </div>
           ) : (
-            cart?.map((item, index) => (
-              <div key={index} className="cart-item">
+            cart?.map((item) => (
+              <div key={item.product_code} className="cart-item">
                 <div className="cart-item-image">
                   <img src={item?.product_image} alt={item?.product_name} />
                 </div>
@@ -32,8 +32,8 @@ const Cart = ({ isOpen, onClose, onCheckout }) => {
                   <h4>{item.product_name}</h4>
                   {Object.keys(item.options)?.length > 0 && (
                     <div className="cart-item-options">
-                      {Object.values(item.options).map((option) => (
-                        <span key={option.id} className="customization-tag">
+                      {Object.values(item.options).map((option, index) => (
+                        <span key={index} className="customization-tag">
                           {option.name}
                         </span>
                       ))}

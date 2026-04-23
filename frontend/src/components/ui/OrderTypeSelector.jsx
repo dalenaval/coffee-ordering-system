@@ -1,37 +1,17 @@
-import { Bike, ShoppingBag, Utensils } from "lucide-react";
-import "./OrderTypeSelector.css";
+import './OrderTypeSelector.css'
+import orderTypes from '@/data/orderTypes'
 
 const OrderTypeSelector = ({ selectedType, onSelectType }) => {
-  const orderTypes = [
-    {
-      id: "dine-in",
-      name: "Dine In",
-      icon: <Utensils />,
-      description: "Enjoy your order at our cafe",
-    },
-    {
-      id: "takeout",
-      name: "Takeout",
-      icon: <ShoppingBag />,
-      description: "Pick up your order to go",
-    },
-    {
-      id: "delivery",
-      name: "Delivery",
-      icon: <Bike />,
-      description: "Get your order delivered",
-    },
-  ];
-
   return (
     <div className="order-type-selector">
       <h3>Choose Order Type</h3>
       <div className="order-type-options">
         {orderTypes.map((type) => (
           <button
+            type="button"
             key={type.id}
-            className={`order-type-option ${selectedType === type.id ? "selected" : ""}`}
-            onClick={() => onSelectType(type.id)}
+            className={`order-type-option ${selectedType === type.value ? 'selected' : ''}`}
+            onClick={() => onSelectType(type.value, 'order_type')}
           >
             <span className="order-type-icon">{type.icon}</span>
             <span className="order-type-name">{type.name}</span>
@@ -40,7 +20,7 @@ const OrderTypeSelector = ({ selectedType, onSelectType }) => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OrderTypeSelector;
+export default OrderTypeSelector

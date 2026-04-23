@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Footer from '@/components/layout/Footer'
 import Header from '@/components/layout/Header'
+import { cartStore } from '@/store/useCartStore'
 import ProductModal from '@/components/ui/ProductModal'
 import ProductCatalog from '@/components/ui/ProductCatalog'
 import Cart from '@/components/ui/Cart'
@@ -11,30 +12,39 @@ import CheckoutForm from '@/components/ui/CheckoutForm'
 import { getPublicSystemControls } from '@/api/systemControlService'
 
 // Stored data in local | zustand
-import { cartStore } from '@/store/useCartStore'
 import { useAuth } from '@/store/useAuthStore'
 import UserMenu from '@/components/ui/UserMenu'
 import { useSessionStore } from '@/store/useSessionStore'
+import { useOrderStore } from '@/store/useOrderStore'
+import { apiUrl } from '@/config/config'
+import { useSearchParams } from 'react-router-dom'
 
 const HomePage = () => {
   const cartItems = cartStore((state) => state.cartItems)
-  const initializeSession = useSessionStore((state) => state.initializeSession)
+  const [params] = useSearchParams()
+  const isCheckOutOpen = useOrderStore((state) => state.isCheckOutOpen)
+  const setIsCheckOutOpen = useOrderStore((state) => state.setIsCheckOutOpen)
 
   const { user, isAuthenticated } = useAuth()
 
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   const [systemSettings, setSystemSettings] = useState(null)
   const [settingsLoading, setSettingsLoading] = useState(true)
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      initializeSession()
+    const paymentIntentId = params.get('payment_intent_id')
+
+    if (paymentIntentId) {
+      // Call backend to verify payment status
+      console.log('Verify payment:', paymentIntentId)
+
+      // Example:
+      // fetch(`/api/payments/verify/${paymentIntentId}`)
     }
-  }, [initializeSession, isAuthenticated])
+  }, [params])
 
   useEffect(() => {
     fetchPublicSettings()
@@ -63,12 +73,12 @@ const HomePage = () => {
     if (systemSettings?.order_acceptance !== 'Open') return
 
     setIsCartOpen(false)
-    setIsCheckoutOpen(true)
+    setIsCheckOutOpen(true)
   }
 
   const handleOrderComplete = (order) => {
     console.log('order:', order)
-    setIsCheckoutOpen(false)
+    setIsCheckOutOpen(false)
   }
 
   const storeName = systemSettings?.store_name || 'Kape Nga Ni'
@@ -118,10 +128,10 @@ const HomePage = () => {
 
       <UserMenu isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} onCheckout={handleCheckout} />
 
-      {isCheckoutOpen && websiteOrderingEnabled && orderAcceptanceOpen && (
+      {isCheckOutOpen && websiteOrderingEnabled && orderAcceptanceOpen && (
         <CheckoutForm
           cartItems={cartItems}
-          onClose={() => setIsCheckoutOpen(false)}
+          onClose={() => setIsCheckOutOpen(false)}
           onOrderComplete={handleOrderComplete}
           systemSettings={systemSettings}
         />

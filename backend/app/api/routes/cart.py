@@ -1,54 +1,47 @@
 from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session, selectinload
 
-from typing import Dict, List, Any
-
 from app.db.deps import get_db
 from app.models.cart import Cart
-from app.models.cartItem import CartItem
-from app.models.cartItemOption import CartItemOption
-from app.db.auth import get_current_user
-from app.services.cart import format_cart
+from app.models.cart_item import CartItem
+from app.models.cart_item_option import CartItemOption
+from app.services.auth import get_current_user
+from app.services.cart import format_cart, flatten_list, get_or_create_cart
 
 
 router = APIRouter(prefix='/cart', tags=['Cart'] )
 
-def flatten_options(options: Dict[str, Any]) -> List[Dict[str, Any]]:
-    flat_list = []
-    for value in options.values():
-        if isinstance(value, list):
-            flat_list.extend(value)
-        elif isinstance(value, dict):
-            flat_list.append(value)
-    return flat_list
-
-
-def get_or_create_cart(db:Session, user_id : int) -> Cart:
-    cart = db.query(Cart).filter(Cart.user_id == user_id).first()
-
-    if not cart:
-        cart = Cart(user_id = user_id)
-        db.add(cart)
-        db.commit()
-        db.refresh(cart)
-
-    return cart
-
+def calculate_line_total(base: float, option_total: float, quantity :int):
+    return (float(base) + option_total) * quantity
 
 @router.post('/add-to-cart')
 def add_products_to_cart( payload: dict,user_id = Depends(get_current_user), db:Session = Depends(get_db) ):
 
     try:
         cart = get_or_create_cart(db, user_id)
+        existingItem = db.query(CartItem).filter(CartItem.product_code == payload.get("product_code")).first()
 
-        option_items = flatten_options(payload.get("options"))
+        if existingItem:
+            
+            updatedQuantity = existingItem.quantity + payload.get("quantity")
+            updated_item_total =calculate_line_total(float(existingItem.unit_price), float(existingItem.option_total), updatedQuantity)
+
+            existingItem.quantity = updatedQuantity
+            existingItem.total_price = updated_item_total
+            db.commit() 
+            return {"message": "Item successfully added to cart", 
+                "cart_item_id": existingItem.id}
+
+        option_items = flatten_list(payload.get("options"))
 
         option_total = sum(float(item.get("price_modifier", 0)) for item in option_items)
+        item_total_price = calculate_line_total(payload.get("unit_price"), option_total, payload.get("quantity"))
 
-        item_total_price = (float(payload.get("unit_price")) + option_total) * payload.get("quantity")
+        
 
         new_cart_item = CartItem(
             cart_id = cart.id,
+            product_code = payload.get("product_code"),
             product_id = payload.get("product_id"),
             quantity = payload.get("quantity"),
             unit_price = payload.get("unit_price"),
@@ -110,7 +103,7 @@ def update_cart_item(payload: dict, cart_item_id:int, user_id = Depends(get_curr
     cart_item.total_price = item_total_price
 
     db.commit()
-    db.refresh(cart_item)
+    # db.refresh(cart_item)
 
 
 @router.delete('/{cart_item_id}')

@@ -13,7 +13,7 @@ export default function LandingPage() {
           <a href="#features">Features</a>
           <a href="#about">About</a>
           <Link to="/login" className="landing-login-btn">
-            Staff Login
+            Login
           </Link>
         </nav>
       </header>

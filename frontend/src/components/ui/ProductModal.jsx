@@ -5,6 +5,7 @@ import { buildDefaultSelections } from '@/utils/buildDefaultSelections'
 import { calculateLineTotal } from '@/utils/calculateLineTotal'
 import { useGetProductAttributes } from '@/hooks/useProductAttributeQuery'
 import { useCart } from '@/utils/useCart'
+import { generateProductKey } from '@/utils/generateProductKey'
 
 const ProductModal = ({ product, onClose }) => {
   const { data: attributes, isLoading } = useGetProductAttributes(product?.id)
@@ -37,6 +38,7 @@ const ProductModal = ({ product, onClose }) => {
     const cartItem = {
       options: selectedMenu,
       quantity,
+      product_code: generateProductKey(product?.id, selectedMenu),
       unit_price: product.price,
       product_id: product?.id,
       product_name: product.name,

@@ -1,11 +1,16 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
+from typing import Optional
 from app.core.config import SECRET_KEY, ALGORITHM
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security))->Optional[int]:
+
+    if credentials is None:
+        return None
+    
     token = credentials.credentials
 
     try:
