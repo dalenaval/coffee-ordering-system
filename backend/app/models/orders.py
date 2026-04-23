@@ -20,7 +20,8 @@ class Order(Base, TimeStampMixin):
     # created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User")
-    payment = relationship("Payment", back_populates="order")
+    payment = relationship("Payment", back_populates="order", uselist=False)
+    items = relationship("OrderItem", back_populates="order")
 
 def to_dict(self):
     return {

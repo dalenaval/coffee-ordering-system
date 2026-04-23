@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 from app.models.orders import Order
+from app.models.user import User
 from app.models.customers import Customer
 from app.models.cart import Cart
 from app.models.cart_item import CartItem
@@ -9,6 +10,7 @@ from app.models.order_item_option import OrderItemOption
 from app.models.payment import Payment
 from app.models.stock_log import StockLog
 from app.services.paymongo_service import PayMongoService
+from app.core.config import PAYMONGO_SECRET_KEY,PAYMONGO_BASE_URL, FRONTEND_URL
 
 import resend
 import base64
@@ -32,8 +34,8 @@ resend.api_key = RESEND_API_KEY
 @router.get("/")
 def get_orders(db: Session = Depends(get_db)):
     rows = (
-        db.query(Order, Customer)
-        .outerjoin(Customer, Order.customer_id == Customer.id)
+        db.query(Order, User)
+        .outerjoin(User, Order.user_id == User.id)
         .order_by(Order.created_at.desc())
         .all()
     )
@@ -42,16 +44,18 @@ def get_orders(db: Session = Depends(get_db)):
         {
             "id": order.id,
             "order_no": order.order_no,
-            "customer_name": customer.full_name if customer else "Walk-in Customer",
+            "customer_name": (
+                user.full_name if user
+                else (order.email if order.email else "Walk-in Customer")
+            ),
             "order_type": order.order_type,
             "status": order.status,
-            "subtotal": float(order.subtotal),
-            "total_amount": float(order.total_amount),
+            "subtotal": float(order.subtotal or 0),
+            "total_amount": float(order.total_amount or 0),
             "created_at": order.created_at,
         }
-        for order, customer in rows
+        for order, user in rows
     ]
-
 
 @router.get("/{order_id}")
 def get_order(order_id: int, db: Session = Depends(get_db)):
@@ -159,9 +163,12 @@ async def create_order(
             service = PayMongoService()
            
 
-            attach_response  = service.attach_payment_intent(
+            callback_url = f"{FRONTEND_URL}/payment/callback?payment_intent_id={payment_result['payment_intent_id']}"
+
+            attach_response = service.attach_payment_intent(
                 intent_id=payment_result['payment_intent_id'],
-                payment_method_id = payment_method_id
+                payment_method_id=payment_method_id,
+                return_url=callback_url
             )
             print(f"done attach", attach_response)
             if 'data' in attach_response:
@@ -230,21 +237,52 @@ def update_order_status(order_id: int, payload: dict, db: Session = Depends(get_
         }
     }
 
-
 @router.get("/{order_id}/receipt")
 def get_order(order_id: int, db: Session = Depends(get_db)):
-    order = (db.query(Order)
+    order = (
+        db.query(Order)
         .options(
-            selectinload(Order.items)
-            .selectinload(OrderItem.options),
+            selectinload(Order.items),
             selectinload(Order.payment)
-        ).filter(Order.id == order_id)
-        .first())
+        )
+        .filter(Order.id == order_id)
+        .first()
+    )
 
     if not order:
         raise HTTPException(status_code=404, detail="Order not found.")
 
-    return order
+    return {
+        "id": order.id,
+        "order_no": order.order_no,
+        "user_id": order.user_id,
+        "email": order.email,
+        "phone": order.phone,
+        "order_type": order.order_type,
+        "status": order.status,
+        "subtotal": float(order.subtotal),
+        "total_amount": float(order.total_amount),
+        "created_at": order.created_at,
+        "items": [
+                {
+                    "id": item.id,
+                    "product_id": item.product_id,
+                    "product_name": item.product.name if item.product else f"Product #{item.product_id}",
+                    "quantity": item.quantity,
+                    "unit_price": float(item.unit_price),
+                    "option_total": float(item.option_total or 0),
+                    "line_total": float(item.line_total),
+                }
+            for item in order.items
+        ],
+        "payment": {
+            "id": order.payment.id,
+            "payment_method": order.payment.payment_method,
+            "payment_status": order.payment.payment_status,
+            "total_amount": float(order.payment.total_amount or 0),
+            "payment_intent_id": order.payment.payment_intent_id,
+        } if order.payment else None,
+    }
     # return {
     #     "id": order.id,
     #     "order_no": order.order_no,

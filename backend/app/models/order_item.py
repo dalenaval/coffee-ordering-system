@@ -14,6 +14,7 @@ class OrderItem(Base):
     option_total=Column(Numeric(10, 2),  default=0) 
     line_total = Column(Numeric(10, 2), nullable=False, default=0) 
 
-    order = relationship("Order")
     product = relationship("Product")
+    order = relationship("Order", back_populates="items")
+
     

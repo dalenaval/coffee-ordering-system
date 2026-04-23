@@ -12,7 +12,6 @@ from app.api.routes import option_items
 from app.api.routes import product_attributes
 from app.api.routes import orders
 from app.api.routes import order_items
-from app.api.routes import payment
 from app.api.routes import dashboard
 from app.api.routes import menu
 from app.api.routes import cart
@@ -20,6 +19,7 @@ from app.api.routes import reports
 from app.api.routes import system_control
 from app.api.routes import employees
 from app.api.routes import staff_scheduling
+from app.api.routes import payments
 
 Base.metadata.create_all(bind=engine)
 
@@ -47,7 +47,7 @@ app.include_router(option_items.router)
 app.include_router(product_attributes.router)
 app.include_router(orders.router)
 app.include_router(order_items.router)
-app.include_router(payment.router)
+app.include_router(payments.router)
 app.include_router(menu.router)
 app.include_router(dashboard.router)
 app.include_router(cart.router)

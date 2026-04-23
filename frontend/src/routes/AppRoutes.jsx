@@ -10,6 +10,8 @@ import StaffSchedulingPage from "../pages/admin/StaffSchedulingPage";
 import EmployeesPage from "../pages/admin/EmployeesPage";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
+import PaymentCallbackPage from "../pages/user/PaymentCallbackPage";
+import ReceiptPage from "../pages/user/ReceiptPage"
 
 export default function AppRoutes() {
   return (
@@ -18,6 +20,8 @@ export default function AppRoutes() {
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+        <Route path="/orders/:orderId/receipt" element={<ReceiptPage />} />
 
         <Route
           path="/home"

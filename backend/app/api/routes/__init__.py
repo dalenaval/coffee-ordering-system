@@ -6,7 +6,7 @@ from . import option_items
 from . import product_attributes
 from . import orders
 from . import order_items
-from . import payment
+from . import payments
 from . import dashboard
 from . import reports
 from . import system_control

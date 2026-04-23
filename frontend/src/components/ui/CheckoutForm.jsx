@@ -5,6 +5,13 @@ import { useCart } from '@/utils/useCart'
 import PaymentMethods from './PaymentMethod'
 import { useAuth } from '@/store/useAuthStore'
 import { useCheckout } from '@/hooks/useCheckout'
+import {
+  createCardPaymentMethod,
+  createPaymentIntent,
+  attachPaymentIntent,
+  createEwalletPaymentMethod
+} from "@/api/paymongo";
+import api from "@/api/axios";
 
 function CheckoutForm({ onClose }) {
   const { cart, total } = useCart()
@@ -26,19 +33,92 @@ function CheckoutForm({ onClose }) {
     email: isAuthenticated ? user?.email : '',
     phone: '',
     payment_method: '',
+    card_number: '',
+    exp_month: '',
+    exp_year: '',
+    cvc: '',
   })
 
   const [deliveryAddress, setDeliveryAddress] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const payload = {
-      ...form,
-      total_amount: totalAmout,
-      cart_items: cart,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      let payment_method_id = null;
+  
+      if (form.payment_method === "gcash" || form.payment_method === "paymaya") {
+        payment_method_id = await createEwalletPaymentMethod({
+          payment_method: form.payment_method,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+        });
+  
+        console.log("payment_method_id:", payment_method_id);
+      }
+  
+      const orderPayload = {
+        ...form,
+        total_amount: totalAmout,
+        cart_items: cart,
+        delivery_address: deliveryAddress,
+        payment_method_id,
+      };
+  
+      console.log("orderPayload:", orderPayload);
+  
+      const orderRes = await api.post("/orders/checkout", orderPayload);
+      const order = orderRes.data;
+  
+      if (form.payment_method !== "card") {
+        if (order?.redirect_url) {
+          window.location.href = order.redirect_url;
+          return;
+        }
+      
+        onClose();
+        return;
+      }
+  
+      const intentRes = await createPaymentIntent(order.id);
+  
+      const paymentMethodId = await createCardPaymentMethod({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        card_number: form.card_number,
+        exp_month: form.exp_month,
+        exp_year: form.exp_year,
+        cvc: form.cvc,
+      });
+  
+      const attachRes = await attachPaymentIntent(
+        intentRes.payment_intent_id,
+        paymentMethodId
+      );
+  
+      if (attachRes.status === "awaiting_next_action") {
+        const redirectUrl =
+          attachRes?.next_action?.redirect?.url ||
+          attachRes?.next_action?.redirect_url;
+  
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+          return;
+        }
+      }
+  
+      if (attachRes.status === "succeeded" || attachRes.status === "processing") {
+        onClose();
+        window.location.href = `/payment/callback?payment_intent_id=${intentRes.payment_intent_id}`;
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error?.message || "Payment failed.");
     }
-    checkout(payload)
-  }
+  };
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -117,6 +197,64 @@ function CheckoutForm({ onClose }) {
             )}
           </div>
           <PaymentMethods selected={form.payment_method} onChange={handleSelect} />
+
+          {form.payment_method === "card" && (
+            <div className="form-section">
+              <div className="form-group">
+                <label htmlFor="card_number">Card Number</label>
+                <input
+                  id="card_number"
+                  name="card_number"
+                  type="text"
+                  value={form.card_number}
+                  onChange={handleChange}
+                  placeholder="Enter card number"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="exp_month">Expiry Month</label>
+                <input
+                  id="exp_month"
+                  name="exp_month"
+                  type="number"
+                  min="1"
+                  max="12"
+                  value={form.exp_month}
+                  onChange={handleChange}
+                  placeholder="MM"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="exp_year">Expiry Year</label>
+                <input
+                  id="exp_year"
+                  name="exp_year"
+                  type="number"
+                  value={form.exp_year}
+                  onChange={handleChange}
+                  placeholder="YYYY"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="cvc">CVC</label>
+                <input
+                  id="cvc"
+                  name="cvc"
+                  type="password"
+                  value={form.cvc}
+                  onChange={handleChange}
+                  placeholder="CVC"
+                  required
+                />
+              </div>
+            </div>
+          )}
 
           <div className="order-summary">
             <h3>Order Summary</h3>
