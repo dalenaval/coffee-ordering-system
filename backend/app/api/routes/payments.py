@@ -9,6 +9,7 @@ from app.payments.gateway import PaymentGateway
 from app.models.order_item import OrderItem
 from app.services.paymongo_service import PayMongoService
 from app.services.receipt_email import send_receipt_email
+from app.services.stock_service import deduct_stock_after_payment
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
@@ -130,18 +131,21 @@ def verify_payment(payload: dict, db: Session = Depends(get_db)):
         paymongo_status = paymongo_result["data"]["attributes"]["status"]
 
         if paymongo_status in ["succeeded", "paid"]:
+            if payment.payment_status != "paid":
+                deduct_stock_after_payment(order, db)
+        
             payment.payment_status = "paid"
             order.status = "paid"
-
+        
             db.commit()
             db.refresh(payment)
             db.refresh(order)
-
+        
             try:
                 send_receipt_email(order, db)
             except Exception as email_error:
                 print("Receipt email failed:", str(email_error))
-
+        
             return {
                 "message": "Payment verified successfully",
                 "status": "paid",
