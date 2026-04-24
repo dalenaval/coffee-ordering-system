@@ -16,7 +16,7 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
     total_customers = db.query(func.count(Customer.id)).scalar() or 0
 
     total_sales = (
-        db.query(func.coalesce(func.sum(Payment.amount), 0))
+        db.query(func.coalesce(func.sum(Payment.total_amount), 0))
         .filter(Payment.payment_status.in_(["Paid", "Completed"]))
         .scalar()
     ) or 0

@@ -67,7 +67,7 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
     return {
         "id": order.id,
         "order_no": order.order_no,
-        "customer_id": order.customer_id,
+        "customer_id": order.user_id,
         "order_type": order.order_type,
         "status": order.status,
         "subtotal": float(order.subtotal),
