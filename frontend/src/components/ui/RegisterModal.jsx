@@ -97,7 +97,7 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
                 type="text"
                 name="name"
                 placeholder="Enter your full name"
-                value={form.name}
+                value={form.full_name}
                 onChange={handleChange}
                 required
               />
