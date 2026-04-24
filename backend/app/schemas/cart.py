@@ -9,6 +9,7 @@ class CartItemOptionCreate(BaseModel):
     
 class AddToCartRequest(BaseModel):
     user_id: int
+    product_code: str
     product_id: int
     quantity:int
     base_price: Decimal

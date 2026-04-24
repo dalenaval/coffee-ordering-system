@@ -82,8 +82,8 @@ def get_current_user_cart(user_id= Depends(get_current_user), db: Session = Depe
 
 
 @router.patch('/{cart_item_id}/quantity')
-def update_cart_item(payload: dict, product_code:str, user_id = Depends(get_current_user), db:Session=Depends(get_db)):
-    cart_item = db.query(CartItem).filter(CartItem.product_code == product_code).first()
+def update_cart_item(payload: dict, cart_item_id:int, user_id = Depends(get_current_user), db:Session=Depends(get_db)):
+    cart_item = db.query(CartItem).filter(CartItem.id == cart_item_id).first()
 
     if not cart_item:
         HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")
@@ -107,8 +107,8 @@ def update_cart_item(payload: dict, product_code:str, user_id = Depends(get_curr
 
 
 @router.delete('/{cart_item_id}')
-def remove_cart_item(product_code: str, user_id = Depends(get_current_user), db: Session = Depends(get_db)):
-    cart_item = db.query(CartItem).filter(CartItem.product_code == product_code).first()
+def remove_cart_item(cart_item_id: int, user_id = Depends(get_current_user), db: Session = Depends(get_db)):
+    cart_item = db.query(CartItem).filter(CartItem.id == cart_item_id).first()
 
     if not cart_item:
         HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")

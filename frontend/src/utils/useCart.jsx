@@ -27,7 +27,7 @@ export const useCart = () => {
 
   const removeItem = (item) => {
     if (isAuthenticated) {
-      return removeItemMutation.mutate(item.product_code)
+      return removeItemMutation.mutate(item.cart_item_id)
     } else {
       removeCart(item?.product_code)
     }
