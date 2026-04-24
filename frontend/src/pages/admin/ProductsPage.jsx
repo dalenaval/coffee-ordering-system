@@ -1,56 +1,56 @@
-import { useEffect, useState } from "react";
-import AdminLayout from "../../components/admin/AdminLayout";
-import { getMenuList, getLowStockProducts, restockProduct } from "../../api/productService";
-import "./AdminPages.css";
+import { useEffect, useState } from 'react'
+import AdminLayout from '../../components/admin/AdminLayout'
+import { getMenuList, getLowStockProducts, restockProduct, getProducts } from '../../api/productService'
+import './AdminPages.css'
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState([]);
-  const [lowStock, setLowStock] = useState([]);
-  const [restockQty, setRestockQty] = useState({});
-  const [remarks, setRemarks] = useState({});
+  const [products, setProducts] = useState([])
+  const [lowStock, setLowStock] = useState([])
+  const [restockQty, setRestockQty] = useState({})
+  const [remarks, setRemarks] = useState({})
 
   useEffect(() => {
-    fetchProducts();
-    fetchLowStock();
-  }, []);
+    fetchProducts()
+    fetchLowStock()
+  }, [])
 
   const fetchProducts = async () => {
     try {
-      const data = await getMenuList();
-      setProducts(data);
+      const data = await getProducts()
+      setProducts(data)
     } catch (error) {
-      console.error("Failed to load products:", error);
+      console.error('Failed to load products:', error)
     }
-  };
+  }
 
   const fetchLowStock = async () => {
     try {
-      const data = await getLowStockProducts();
-      setLowStock(data);
+      const data = await getLowStockProducts()
+      setLowStock(data)
     } catch (error) {
-      console.error("Failed to load low stock items:", error);
+      console.error('Failed to load low stock items:', error)
     }
-  };
+  }
 
   const handleRestock = async (productId) => {
     try {
-      const quantity = Number(restockQty[productId] || 0);
-      if (quantity <= 0) return;
+      const quantity = Number(restockQty[productId] || 0)
+      if (quantity <= 0) return
 
       await restockProduct(productId, {
         quantity,
         remarks: remarks[productId] || null,
-      });
+      })
 
-      setRestockQty((prev) => ({ ...prev, [productId]: "" }));
-      setRemarks((prev) => ({ ...prev, [productId]: "" }));
+      setRestockQty((prev) => ({ ...prev, [productId]: '' }))
+      setRemarks((prev) => ({ ...prev, [productId]: '' }))
 
-      fetchProducts();
-      fetchLowStock();
+      fetchProducts()
+      fetchLowStock()
     } catch (error) {
-      console.error("Failed to restock product:", error);
+      console.error('Failed to restock product:', error)
     }
-  };
+  }
 
   return (
     <AdminLayout title="Products">
@@ -79,7 +79,7 @@ export default function ProductsPage() {
                     <td>{item.name}</td>
                     <td>{item.stock}</td>
                     <td>
-                      <span className={`badge ${item.status === "OUT OF STOCK" ? "cancelled" : "pending"}`}>
+                      <span className={`badge ${item.status === 'OUT OF STOCK' ? 'cancelled' : 'pending'}`}>
                         {item.status}
                       </span>
                     </td>
@@ -87,28 +87,20 @@ export default function ProductsPage() {
                       <input
                         type="number"
                         min="1"
-                        value={restockQty[item.id] || ""}
-                        onChange={(e) =>
-                          setRestockQty((prev) => ({ ...prev, [item.id]: e.target.value }))
-                        }
+                        value={restockQty[item.id] || ''}
+                        onChange={(e) => setRestockQty((prev) => ({ ...prev, [item.id]: e.target.value }))}
                       />
                     </td>
                     <td>
                       <input
                         type="text"
-                        value={remarks[item.id] || ""}
-                        onChange={(e) =>
-                          setRemarks((prev) => ({ ...prev, [item.id]: e.target.value }))
-                        }
+                        value={remarks[item.id] || ''}
+                        onChange={(e) => setRemarks((prev) => ({ ...prev, [item.id]: e.target.value }))}
                         placeholder="Optional remarks"
                       />
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className="admin-action-btn"
-                        onClick={() => handleRestock(item.id)}
-                      >
+                      <button type="button" className="admin-action-btn" onClick={() => handleRestock(item.id)}>
                         Restock
                       </button>
                     </td>
@@ -126,7 +118,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="admin-page-card" style={{ marginTop: "24px" }}>
+      <div className="admin-page-card" style={{ marginTop: '24px' }}>
         <div className="admin-page-head">
           <h2>All Products</h2>
           <p>Current inventory overview.</p>
@@ -150,7 +142,7 @@ export default function ProductsPage() {
                   <td>{item.name}</td>
                   <td>{item.category}</td>
                   <td>₱{Number(item.price).toLocaleString()}</td>
-                  <td>{item.is_available ? "Yes" : "No"}</td>
+                  <td>{item.is_available ? 'Yes' : 'No'}</td>
                   <td>{item.stock}</td>
                   <td>{item.low_stock_threshold}</td>
                 </tr>
@@ -160,5 +152,5 @@ export default function ProductsPage() {
         </div>
       </div>
     </AdminLayout>
-  );
+  )
 }

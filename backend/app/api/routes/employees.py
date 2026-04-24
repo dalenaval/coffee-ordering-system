@@ -5,6 +5,9 @@ from app.models.employee import Employee
 from app.models.user import User
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeToggleStatus
 
+from app.core.security import hash_password
+
+
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
 
@@ -54,7 +57,7 @@ def create_employee(payload: EmployeeCreate, db: Session = Depends(get_db)):
         new_user = User(
             full_name=payload.full_name,
             email=payload.login_email,
-            password=payload.login_password,
+            password=hash_password(payload.login_password),
             role=payload.role,
             is_active=payload.is_active
         )
