@@ -12,6 +12,7 @@ class CreateCartItem(BaseModel):
 
 class UpdateCartItem(BaseModel):
     cart_id = Optional[int]
+    product_code = Optional[str]
     product_id = Optional[int]
     quantity = Optional[int]
     unit_price = Optional[Decimal]
