@@ -156,7 +156,7 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
                   id="confirmPassword"
                   type={showCPassword ? 'text' : 'password'}
                   name="confirmPassword"
-                  placeholder="Enter your password"
+                  placeholder="Confirm password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPasword(e.target.value)}
                   style={{ paddingRight: '70px', width: '100%', boxSizing: 'border-box' }}
