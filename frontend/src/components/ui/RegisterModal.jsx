@@ -93,9 +93,9 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
                 Full Name
               </label>
               <input
-                id="name"
+                id="full_name"
                 type="text"
-                name="name"
+                name="full_name"
                 placeholder="Enter your full name"
                 value={form.full_name}
                 onChange={handleChange}
