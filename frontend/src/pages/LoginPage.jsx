@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import './LoginPage.css'
 import { useAuthLogin } from '@/hooks/useAuthQuery'
+import { ArrowLeft, ArrowRightFromLineIcon, RegexIcon, UserPlus } from 'lucide-react'
+import RegisterModal from '@/components/ui/RegisterModal'
 
 export default function LoginPage() {
   const { mutate: loginUser, isPending } = useAuthLogin()
+  const [showSignUp, setShowSignUp] = useState(false)
 
   const [form, setForm] = useState({
     email: '',
@@ -75,10 +78,18 @@ export default function LoginPage() {
             </button>
 
             <div className="login-footer">
+              <div className="sign-up-wrapper">
+                <label className="sign-up-label">Love at first sip. Join our coffee community. </label>
+                <Link to="#" onClick={() => setShowSignUp(true)}>
+                  Create an account
+                </Link>
+              </div>
+
               <Link to="/">← Back to Home</Link>
             </div>
           </form>
         </div>
+        {showSignUp && <RegisterModal setShowSignUp={setShowSignUp} onClose={() => setShowSignUp(false)} />}
       </div>
     </div>
   )
