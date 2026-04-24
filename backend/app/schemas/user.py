@@ -12,6 +12,8 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class VerifyEmail(BaseModel):
+    email: EmailStr
 class TokenSchema(BaseModel):
     access_token: str
     token_type:str="bearer"

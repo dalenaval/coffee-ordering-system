@@ -1,4 +1,4 @@
-import { ShoppingCart, User, User2, User2Icon } from 'lucide-react'
+import { ShoppingCart, User2Icon } from 'lucide-react'
 import './Header.css'
 import { useUserStore } from '@/store/useUserStore'
 import { useAuthStore } from '@/store/useAuthStore'
