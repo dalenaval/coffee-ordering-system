@@ -19,3 +19,8 @@ export const getCurrentUser = async () => {
   const response = await api.get(`/users/me`)
   return response.data
 }
+
+export const verifyEmail = async (payload) => {
+  const response = await api.post('/users/verify', payload)
+  return response.data
+}

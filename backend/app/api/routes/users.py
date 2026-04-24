@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.deps import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenSchema,UserDetailsResponse
+from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenSchema,UserDetailsResponse, VerifyEmail
 from app.core.security import verify_password, create_access_token, hash_password
 from app.services.auth import get_current_user
 
@@ -57,12 +57,30 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     }
 
 
+@router.post("/verify")
+def verify_email(payload: VerifyEmail, db: Session = Depends(get_db)):
+    if not payload.email:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No email provided")
+    
+    exist = db.query(User).filter(User.email == payload.email).first()
+
+    if exist:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist")
+   
+    return {"message":"success", "detail":"Email available"}
+
+
 @router.get("/", response_model=list[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     return db.query(User).order_by(User.id.desc()).all()
+
 
 
 @router.get("/me", response_model=UserDetailsResponse)
 def get_user_data(db: Session = Depends(get_db), user_id = Depends(get_current_user)):
     print(f"use_id", user_id)
     return db.query(User).where(User.id == user_id).first()
+
+
+
+
