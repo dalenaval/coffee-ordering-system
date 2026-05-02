@@ -53,6 +53,11 @@ def get_reports_summary(
         reverse=True
     )[:5]
 
+    least_products = sorted(
+        [{"name": k, "total_sold": v} for k, v in best_products_map.items()],
+        key=lambda x: x["total_sold"] 
+    )[:5]
+
     daily_map = {}
     for order in filtered_orders:
         key = order.created_at.strftime("%Y-%m-%d") if order.created_at else "Unknown"
@@ -68,5 +73,6 @@ def get_reports_summary(
         "total_sales": total_sales,
         "total_orders": total_orders,
         "best_products": best_products,
+        "least_products": least_products,
         "daily_orders": daily_orders
     }
