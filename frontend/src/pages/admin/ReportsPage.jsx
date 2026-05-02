@@ -26,6 +26,7 @@ export default function ReportsPage() {
     total_sales: 0,
     total_orders: 0,
     best_products: [],
+    lease_products: [],
     daily_orders: [],
   });
 
@@ -51,6 +52,7 @@ export default function ReportsPage() {
         total_sales: res.data?.total_sales || 0,
         total_orders: res.data?.total_orders || 0,
         best_products: Array.isArray(res.data?.best_products) ? res.data.best_products : [],
+        least_products: Array.isArray(res.data?.least_products) ? res.data.least_products : [],
         daily_orders: Array.isArray(res.data?.daily_orders) ? res.data.daily_orders : [],
       });
     } catch (error) {
@@ -263,6 +265,46 @@ export default function ReportsPage() {
                     <tr>
                       <td colSpan="3" className="empty-state-cell">
                         No sales data yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="admin-page-card" style={{ marginTop: "24px" }}>
+            <div className="admin-page-head">
+              <h2>Least Selling Products</h2>
+              <p>Lowest performing items based on quantity sold.</p>
+            </div>
+                            
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Product</th>
+                    <th>Total Sold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.least_products.length > 0 ? (
+                    data.least_products.map((item, index) => (
+                      <tr key={index}>
+                        <td>
+                          <span className="rank-badge rank-default">
+                            #{index + 1}
+                          </span>
+                        </td>
+                        <td>{item.name}</td>
+                        <td>{item.total_sold}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" className="empty-state-cell">
+                        No least selling data available.
                       </td>
                     </tr>
                   )}
