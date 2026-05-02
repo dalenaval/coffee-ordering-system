@@ -84,12 +84,19 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td>
-                      <input
-                        type="number"
-                        min="1"
-                        value={restockQty[item.id] || ''}
-                        onChange={(e) => setRestockQty((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                      />
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      inputMode="numeric"
+                      value={restockQty[item.id] || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^\d*$/.test(val)) {
+                          setRestockQty((prev) => ({ ...prev, [item.id]: val }));
+                        }
+                      }}
+                    />
                     </td>
                     <td>
                       <input
