@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import './LoginPage.css'
 import { useAuthLogin } from '@/hooks/useAuthQuery'
-import { ArrowLeft, ArrowRightFromLineIcon, RegexIcon, UserPlus } from 'lucide-react'
 import RegisterModal from '@/components/ui/RegisterModal'
 
 export default function LoginPage() {

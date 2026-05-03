@@ -1,3 +1,5 @@
+from zoneinfo import ZoneInfo
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 from app.models.orders import Order
@@ -26,6 +28,7 @@ from app.payments.service import PaymentService
 from app.core.config import RESEND_API_KEY
 from app.core.config import SECRET_KEY, GENERATE_QR_URL
 from app.utils.system_settings import get_system_settings_map
+from app.utils.date_formatter import format_datetime
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -36,7 +39,7 @@ def get_orders(db: Session = Depends(get_db)):
     rows = (
         db.query(Order, User)
         .outerjoin(User, Order.user_id == User.id)
-        .order_by(Order.created_at.desc())
+        .order_by(Order.created_at.asc()) 
         .all()
     )
 
@@ -52,7 +55,7 @@ def get_orders(db: Session = Depends(get_db)):
             "status": order.status,
             "subtotal": float(order.subtotal or 0),
             "total_amount": float(order.total_amount or 0),
-            "created_at": order.created_at,
+            "created_at":order.created_at,
         }
         for order, user in rows
     ]
@@ -68,11 +71,25 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
         "id": order.id,
         "order_no": order.order_no,
         "customer_id": order.user_id,
+        "customer_name": order.user.full_name if order.user else (order.email if order.email else "Walk-in Customer"),
         "order_type": order.order_type,
+        "items": [
+            {
+                "id": item.id,
+                "product_id": item.product_id,
+                "product_name": item.product.name if item.product else f"Product #{item.product_id}",
+                "quantity": item.quantity,
+                "unit_price": float(item.unit_price),
+                "option_total": float(item.option_total or 0),
+                "line_total": float(item.line_total),
+            }
+            for item in order.items
+        ],
         "status": order.status,
         "subtotal": float(order.subtotal),
         "total_amount": float(order.total_amount),
-        "created_at": order.created_at,
+        "created_at":order.created_at.astimezone(ZoneInfo("Asia/Manila")).strftime("%B %d, %Y %I:%M:%S %p"),
+
     }
 
 
@@ -107,7 +124,7 @@ async def create_order(
             phone = payload.get("phone") if payload.get("phone") != "" else None,
             order_type = payload.get("order_type"),
             status = "pending",
-            subtotal = payload.get("subtotal"),
+            subtotal = payload.get("sub_total"),
             total_amount = float(payload.get("total_amount"))
         )
         db.add(order)
@@ -228,14 +245,23 @@ def update_order_status(order_id: int, payload: dict, db: Session = Depends(get_
     db.commit()
     db.refresh(order)
 
-    return {
-        "message": "Order status updated successfully.",
-        "order": {
-            "id": order.id,
+    return { "id": order.id,
             "order_no": order.order_no,
+            "customer_name":  order.user.full_name if order.user else (order.email if order.email else "Walk-in Customer"),
+            "order_type": order.order_type,
             "status": order.status,
-        }
-    }
+            "subtotal": float(order.subtotal or 0),
+            "total_amount": float(order.total_amount or 0),
+            "created_at": order.created_at}
+
+    # return {
+    #     "message": "Order status updated successfully.",
+    #     "order": {
+    #         "id": order.id,
+    #         "order_no": order.order_no,
+    #         "status": order.status,
+    #     }
+    # }
 
 @router.get("/{order_id}/receipt")
 def get_order(order_id: int, db: Session = Depends(get_db)):

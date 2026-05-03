@@ -9,9 +9,9 @@ import {
   createCardPaymentMethod,
   createPaymentIntent,
   attachPaymentIntent,
-  createEwalletPaymentMethod
-} from "@/api/paymongo";
-import api from "@/api/axios";
+  createEwalletPaymentMethod,
+} from '@/api/paymongo'
+import api from '@/api/axios'
 
 function CheckoutForm({ onClose }) {
   const { cart, total } = useCart()
@@ -42,47 +42,46 @@ function CheckoutForm({ onClose }) {
   const [deliveryAddress, setDeliveryAddress] = useState('')
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     try {
-      let payment_method_id = null;
-  
-      if (form.payment_method === "gcash" || form.payment_method === "paymaya") {
+      let payment_method_id = null
+
+      if (form.payment_method === 'gcash' || form.payment_method === 'paymaya') {
         payment_method_id = await createEwalletPaymentMethod({
           payment_method: form.payment_method,
           name: form.name,
           email: form.email,
           phone: form.phone,
-        });
-  
-        console.log("payment_method_id:", payment_method_id);
+        })
       }
-  
+
       const orderPayload = {
         ...form,
+        sub_total: total,
         total_amount: totalAmout,
         cart_items: cart,
         delivery_address: deliveryAddress,
         payment_method_id,
-      };
-  
-      console.log("orderPayload:", orderPayload);
-  
-      const orderRes = await api.post("/orders/checkout", orderPayload);
-      const order = orderRes.data;
-  
-      if (form.payment_method !== "card") {
-        if (order?.redirect_url) {
-          window.location.href = order.redirect_url;
-          return;
-        }
-      
-        onClose();
-        return;
       }
-  
-      const intentRes = await createPaymentIntent(order.id);
-  
+
+      console.log('orderPayload:', orderPayload)
+
+      const orderRes = await api.post('/orders/checkout', orderPayload)
+      const order = orderRes.data
+
+      if (form.payment_method !== 'card') {
+        if (order?.redirect_url) {
+          window.location.href = order.redirect_url
+          return
+        }
+
+        onClose()
+        return
+      }
+
+      const intentRes = await createPaymentIntent(order.id)
+
       const paymentMethodId = await createCardPaymentMethod({
         name: form.name,
         email: form.email,
@@ -91,34 +90,29 @@ function CheckoutForm({ onClose }) {
         exp_month: form.exp_month,
         exp_year: form.exp_year,
         cvc: form.cvc,
-      });
-  
-      const attachRes = await attachPaymentIntent(
-        intentRes.payment_intent_id,
-        paymentMethodId
-      );
-  
-      if (attachRes.status === "awaiting_next_action") {
-        const redirectUrl =
-          attachRes?.next_action?.redirect?.url ||
-          attachRes?.next_action?.redirect_url;
-  
+      })
+
+      const attachRes = await attachPaymentIntent(intentRes.payment_intent_id, paymentMethodId)
+
+      if (attachRes.status === 'awaiting_next_action') {
+        const redirectUrl = attachRes?.next_action?.redirect?.url || attachRes?.next_action?.redirect_url
+
         if (redirectUrl) {
-          window.location.href = redirectUrl;
-          return;
+          window.location.href = redirectUrl
+          return
         }
       }
-  
-      if (attachRes.status === "succeeded" || attachRes.status === "processing") {
-        onClose();
-        window.location.href = `/payment/callback?payment_intent_id=${intentRes.payment_intent_id}`;
-        return;
+
+      if (attachRes.status === 'succeeded' || attachRes.status === 'processing') {
+        onClose()
+        window.location.href = `/payment/callback?payment_intent_id=${intentRes.payment_intent_id}`
+        return
       }
     } catch (error) {
-      console.error(error);
-      alert(error?.message || "Payment failed.");
+      console.error(error)
+      alert(error?.message || 'Payment failed.')
     }
-  };
+  }
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -198,7 +192,7 @@ function CheckoutForm({ onClose }) {
           </div>
           <PaymentMethods selected={form.payment_method} onChange={handleSelect} />
 
-          {form.payment_method === "card" && (
+          {form.payment_method === 'card' && (
             <div className="form-section">
               <div className="form-group">
                 <label htmlFor="card_number">Card Number</label>
