@@ -39,7 +39,7 @@ export const useAuthLogin = () => {
           throw new Error('Failed to get token')
         }
 
-        setAuthToken(token)
+        setAuthToken(token) // Set token in auth store for global access
 
         const me = await queryClient.fetchQuery({
           queryKey: ['me'],
@@ -50,16 +50,19 @@ export const useAuthLogin = () => {
           throw new Error('Failed to fetch current user')
         }
 
-        setUserData(me)
+        setUserData(me) // Set user data in auth store
 
-        await queryClient.prefetchQuery({
-          queryKey: ['user_cart'],
-          queryFn: getUserCart,
-        })
+        if (me?.role === 'customer') {
+          // Only fetch cart if user is a customer
+          await queryClient.prefetchQuery({
+            queryKey: ['user_cart'],
+            queryFn: getUserCart,
+          })
+        }
 
-        loginRedirect(me?.role, navigation)
+        loginRedirect(me?.role, navigation) // Redirect based on role
       } catch (error) {
-        console.error('Login initialization failed:', error)
+        console.error('Login initialization failed:', error?.response?.data || error.message)
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
