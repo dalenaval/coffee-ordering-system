@@ -6,7 +6,6 @@ const Cart = ({ isOpen, onClose, onCheckout }) => {
   const { cart, total, removeItem, updateItemQuantity } = useCart()
   if (!isOpen) return null
 
-  console.log('cart', cart)
   return (
     <div className="cart-overlay" onClick={onClose}>
       <div className="cart-sidebar" onClick={(e) => e.stopPropagation()}>
