@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import AdminLayout from "../../components/admin/AdminLayout";
-import { getDashboardSummary } from "../../api/dashboardService";
-import { getLowStockProducts, restockProduct } from "../../api/productService";
-import "./AdminPages.css";
+import { useEffect, useState } from 'react'
+import AdminLayout from '../../components/admin/AdminLayout'
+import { getDashboardSummary } from '../../api/dashboardService'
+import { getLowStockProducts, restockProduct } from '../../api/productService'
+import './AdminPages.css'
+import { toCapitalize } from '@/utils/toCapitalize'
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState({
@@ -11,81 +12,78 @@ export default function DashboardPage() {
     total_customers: 0,
     total_sales: 0,
     recent_orders: [],
-  });
+  })
 
-  const [lowStock, setLowStock] = useState([]);
-  const [restockingId, setRestockingId] = useState(null);
+  const [lowStock, setLowStock] = useState([])
+  const [restockingId, setRestockingId] = useState(null)
   const [confirmModal, setConfirmModal] = useState({
     open: false,
     productId: null,
-    productName: "",
-  });
+    productName: '',
+  })
 
   useEffect(() => {
-    fetchSummary();
-    fetchLowStock();
-  }, []);
+    fetchSummary()
+    fetchLowStock()
+  }, [])
 
   const fetchSummary = async () => {
     try {
-      const data = await getDashboardSummary();
-      setSummary(data);
+      const data = await getDashboardSummary()
+      setSummary(data)
     } catch (error) {
-      console.error("Failed to load dashboard summary:", error);
+      console.error('Failed to load dashboard summary:', error)
     }
-  };
+  }
 
   const fetchLowStock = async () => {
     try {
-      const data = await getLowStockProducts();
-      setLowStock(data);
+      const data = await getLowStockProducts()
+      setLowStock(data)
     } catch (error) {
-      console.error("Failed to load low stock products:", error);
+      console.error('Failed to load low stock products:', error)
     }
-  };
+  }
 
   const openRestockModal = (productId, productName) => {
     setConfirmModal({
       open: true,
       productId,
       productName,
-    });
-  };
+    })
+  }
 
   const closeRestockModal = () => {
     setConfirmModal({
       open: false,
       productId: null,
-      productName: "",
-    });
-  };
+      productName: '',
+    })
+  }
 
   const handleQuickRestock = async () => {
     try {
-      setRestockingId(confirmModal.productId);
+      setRestockingId(confirmModal.productId)
       await restockProduct(confirmModal.productId, {
         quantity: 10,
-        remarks: "Quick restock from dashboard",
-      });
-      closeRestockModal();
-      await fetchLowStock();
-      await fetchSummary();
+        remarks: 'Quick restock from dashboard',
+      })
+      closeRestockModal()
+      await fetchLowStock()
+      await fetchSummary()
     } catch (error) {
-      console.error("Failed to restock product:", error);
+      console.error('Failed to restock product:', error)
     } finally {
-      setRestockingId(null);
+      setRestockingId(null)
     }
-  };
+  }
 
   return (
     <AdminLayout title="Dashboard">
       <section className="admin-hero-card">
         <span className="admin-hero-badge">✨ Admin Overview</span>
         <h2>Kape Nga Ni Operations</h2>
-        <p>
-          Monitor orders, customers, products, employees, and café operations in one
-          professional admin dashboard.
-        </p>
+        <p>Monitor orders, customers, products, employees, and café operations in one professional admin dashboard.</p>
       </section>
 
       <section className="admin-summary-grid">
@@ -135,12 +133,8 @@ export default function DashboardPage() {
                     <td>{item.stock}</td>
                     <td>{item.low_stock_threshold}</td>
                     <td>
-                      <span
-                        className={`badge ${
-                          item.status === "OUT OF STOCK" ? "cancelled" : "pending"
-                        }`}
-                      >
-                        {item.status}
+                      <span className={`badge ${item.status === 'OUT OF STOCK' ? 'cancelled' : 'pending'}`}>
+                        {toCapitalize(item.status)}
                       </span>
                     </td>
                     <td>
@@ -166,7 +160,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="admin-page-card" style={{ marginTop: "24px" }}>
+      <section className="admin-page-card" style={{ marginTop: '24px' }}>
         <div className="admin-page-head">
           <h2>Recent Orders</h2>
           <p>Latest customer transactions</p>
@@ -187,11 +181,9 @@ export default function DashboardPage() {
                 summary.recent_orders.map((order) => (
                   <tr key={order.id}>
                     <td>{order.order_no}</td>
-                    <td>{order.order_type}</td>
+                    <td>{toCapitalize(order.order_type)}</td>
                     <td>
-                      <span className={`badge ${order.status.toLowerCase()}`}>
-                        {order.status}
-                      </span>
+                      <span className={`badge ${order.status.toLowerCase()}`}>{toCapitalize(order.status)}</span>
                     </td>
                     <td>₱{Number(order.total_amount).toLocaleString()}</td>
                   </tr>
@@ -218,11 +210,11 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
                 type="button"
                 className="admin-action-btn"
-                style={{ background: "#d1d5db", color: "#111827", boxShadow: "none" }}
+                style={{ background: '#d1d5db', color: '#111827', boxShadow: 'none' }}
                 onClick={closeRestockModal}
               >
                 Cancel
@@ -234,12 +226,12 @@ export default function DashboardPage() {
                 onClick={handleQuickRestock}
                 disabled={restockingId === confirmModal.productId}
               >
-                {restockingId === confirmModal.productId ? "Restocking..." : "Confirm Restock"}
+                {restockingId === confirmModal.productId ? 'Restocking...' : 'Confirm Restock'}
               </button>
             </div>
           </div>
         </div>
       )}
     </AdminLayout>
-  );
+  )
 }
