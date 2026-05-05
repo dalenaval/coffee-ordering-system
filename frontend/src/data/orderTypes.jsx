@@ -7,6 +7,7 @@ const orderTypes = [
     icon: <Utensils />,
     description: 'Enjoy your order at our cafe',
     value: 'dine-in',
+    status: 'available',
   },
   {
     id: 2,
@@ -14,6 +15,7 @@ const orderTypes = [
     icon: <ShoppingBag />,
     description: 'Pick up your order to go',
     value: 'take-out',
+    status: 'available',
   },
   {
     id: 3,
@@ -21,6 +23,7 @@ const orderTypes = [
     icon: <Bike />,
     description: 'Get your order delivered',
     value: 'delivery',
+    status: 'coming_soon',
   },
 ]
 

@@ -8,6 +8,11 @@ const ProductCard = ({ product, onClick }) => {
 
   return (
     <div className="product-card">
+      {product?.stock === 0 && (
+        <div className="product-overlay">
+          <span className="out-of-stock-text">Out of Stock</span>
+        </div>
+      )}
       <div className="product-image">
         <img
           src={imageUrl}
@@ -25,7 +30,7 @@ const ProductCard = ({ product, onClick }) => {
         <div className="product-footer">
           <span className="product-price">₱ {Number(product?.price || 0).toFixed(2)}</span>
 
-          <button className="customize-button" onClick={() => onClick(product)}>
+          <button className="customize-button" onClick={() => onClick(product)} disabled={product?.stock === 0}>
             {product?.has_options ? 'Customize' : 'Add to Cart'}
           </button>
         </div>

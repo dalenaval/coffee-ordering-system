@@ -9,6 +9,33 @@
   font-weight: 600;
 }
 
+.order-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-bg);
+  z-index: 10;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.coming-soon-badge {
+  background: #555;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transform: rotate(-10deg); /* Optional: adds a "stamp" look */
+}
+
+.order-type-option.is-coming-soon {
+  cursor: not-allowed;
+}
 .order-type-options {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -16,16 +43,16 @@
 }
 
 .order-type-option {
+  position: relative;
   padding: 16px;
   border: 2px solid #ddd;
   background: white;
   border-radius: 12px;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
 }
 
 .order-type-option:hover {

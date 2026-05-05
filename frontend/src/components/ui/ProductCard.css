@@ -1,10 +1,35 @@
 .product-card {
+  position: relative;
   background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
+}
+
+.product-overlay {
+  position: absolute; /* Changed from relative */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-bg);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: not-allowed;
+}
+.out-of-stock-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  background: #555;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: rotate(-10deg); /* Optional: adds a "stamp" look */
 }
 
 .product-card:hover {
@@ -59,7 +84,6 @@
   font-weight: 700;
   color: #6b4423;
 }
-
 
 .product-card {
   background: #ffffff;
