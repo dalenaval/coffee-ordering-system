@@ -24,7 +24,11 @@ export const useAddToCart = () => {
       queryClient.invalidateQueries({ queryKey: ['user_cart'] })
     },
     onError: (error) => {
-      useErrorStore.getState().setError(error?.response?.data || 'Something Went Wrong !')
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Insufficient stock for the requested quantity',
+      })
     },
   })
 }
@@ -50,6 +54,11 @@ export const useUpdateQuantity = () => {
       queryClient.invalidateQueries({ queryKey: ['user_cart'] })
     },
     onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Insufficient stock for the requested quantity',
+      })
       useErrorStore.getState().setError(error?.response?.data || 'Something Went Wrong !')
     },
   })

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.db.deps import get_db
 from app.models.cart import Cart
+from app.models.product import Product
 from app.models.cart_item import CartItem
 from app.models.cart_item_option import CartItemOption
 from app.services.auth import get_current_user
@@ -20,7 +21,12 @@ def add_products_to_cart( payload: dict,user_id = Depends(get_current_user), db:
     try:
         cart = get_or_create_cart(db, user_id)
         existingItem = db.query(CartItem).filter(CartItem.product_code == payload.get("product_code")).first()
-
+        quantity = payload.get("quantity", 0) + (existingItem.quantity if existingItem else 0)
+        has_stock = db.query(Product).filter(Product.id == payload.get("product_id"), Product.stock >= quantity).first()
+       
+        if not has_stock:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient stock for the requested quantity")
+        
         if existingItem:
             
             updatedQuantity = existingItem.quantity + payload.get("quantity")
@@ -90,6 +96,13 @@ def update_cart_item(payload: dict, cart_item_id:int, user_id = Depends(get_curr
 
     if not cart_item:
         HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")
+
+    quantity = payload.get("quantity", 0) + (cart_item.quantity if cart_item else 0)
+    has_stock = db.query(Product).filter(Product.id == payload.get("product_id"), Product.stock >= quantity).first()
+       
+    if not has_stock:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient stock for the requested quantity")
+    
 
     user_cart = db.query(Cart).filter(Cart.user_id == user_id).first()
 
