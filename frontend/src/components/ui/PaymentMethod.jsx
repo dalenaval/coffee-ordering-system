@@ -23,12 +23,12 @@ export default function PaymentMethods({ selected, onChange }) {
       description: 'Pay with cash upon pickup or delivery',
       icon: <Wallet color=" #8b8680" />,
     },
-    {
-      id: 'qrph',
-      label: 'QR PH',
-      description: 'Scan to pay via QR PH',
-      icon: <PaymentIcon altName={'qrph'} icon={QRPHPath} />,
-    },
+    // {
+    //   id: 'qrph',
+    //   label: 'QR PH',
+    //   description: 'Scan to pay via QR PH',
+    //   icon: <PaymentIcon altName={'qrph'} icon={QRPHPath} />,
+    // },
     {
       id: 'gcash',
       label: 'GCash',
@@ -43,12 +43,12 @@ export default function PaymentMethods({ selected, onChange }) {
       icon: <PaymentIcon altName={'maya'} icon={MayaIconPath} />,
     },
 
-    {
-      id: 'card',
-      label: 'Credit / Debit Card',
-      description: 'Visa, Mastercard, and more',
-      icon: <PaymentIcon altName={'visa'} icon={VisaIconPath} />,
-    },
+    // {
+    //   id: 'card',
+    //   label: 'Credit / Debit Card',
+    //   description: 'Visa, Mastercard, and more',
+    //   icon: <PaymentIcon altName={'visa'} icon={VisaIconPath} />,
+    // },
   ]
 
   return (

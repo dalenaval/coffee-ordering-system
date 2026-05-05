@@ -12,7 +12,13 @@ const OrderTypeSelector = ({ selectedType, onSelectType }) => {
             key={type.id}
             className={`order-type-option ${selectedType === type.value ? 'selected' : ''}`}
             onClick={() => onSelectType(type.value, 'order_type')}
+            disabled={type.status === 'coming_soon'}
           >
+            {type.status === 'coming_soon' && (
+              <div className="order-overlay">
+                <span className="coming-soon-badge">Coming Soon</span>
+              </div>
+            )}
             <span className="order-type-icon">{type.icon}</span>
             <span className="order-type-name">{type.name}</span>
             <span className="order-type-description">{type.description}</span>

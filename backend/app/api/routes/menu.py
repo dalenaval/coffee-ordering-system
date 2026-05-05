@@ -19,7 +19,7 @@ def get_menu_items(
     if(category_id) :
        query = query.filter(Product.category_id == category_id)
 
-    return  query.order_by(Product.id.desc()).all()
+    return  query.order_by((Product.stock == 0),Product.id.desc()).all()
 
 # router = APIRouter(prefix="/menu", tags=["Menu"])
 
