@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Footer from '@/components/layout/Footer'
 import Header from '@/components/layout/Header'
-import { cartStore } from '@/store/useCartStore'
 import ProductModal from '@/components/ui/ProductModal'
 import ProductCatalog from '@/components/ui/ProductCatalog'
 import Cart from '@/components/ui/Cart'
@@ -14,14 +13,13 @@ import { getPublicSystemControls } from '@/api/systemControlService'
 // Stored data in local | zustand
 import { useAuth } from '@/store/useAuthStore'
 import UserMenu from '@/components/ui/UserMenu'
-import { useSessionStore } from '@/store/useSessionStore'
 import { useOrderStore } from '@/store/useOrderStore'
-import { apiUrl } from '@/config/config'
-import { useSearchParams } from 'react-router-dom'
+import { generateProductKey } from '@/utils/generateProductKey'
+import { useCart } from '@/utils/useCart'
+import { toCapitalize } from '@/utils/toCapitalize'
 
 const HomePage = () => {
-  const cartItems = cartStore((state) => state.cartItems)
-  const [params] = useSearchParams()
+  const { addToCart, cart } = useCart()
   const isCheckOutOpen = useOrderStore((state) => state.isCheckOutOpen)
   const setIsCheckOutOpen = useOrderStore((state) => state.setIsCheckOutOpen)
 
@@ -33,18 +31,6 @@ const HomePage = () => {
 
   const [systemSettings, setSystemSettings] = useState(null)
   const [settingsLoading, setSettingsLoading] = useState(true)
-
-  useEffect(() => {
-    const paymentIntentId = params.get('payment_intent_id')
-
-    if (paymentIntentId) {
-      // Call backend to verify payment status
-      console.log('Verify payment:', paymentIntentId)
-
-      // Example:
-      // fetch(`/api/payments/verify/${paymentIntentId}`)
-    }
-  }, [params])
 
   useEffect(() => {
     fetchPublicSettings()
@@ -65,7 +51,21 @@ const HomePage = () => {
   const handleSelectedProduct = (product) => {
     if (systemSettings?.menu_visibility !== 'Published') return
     if (systemSettings?.website_ordering !== 'Enabled') return
-    setSelectedProduct(product)
+    if (product?.has_options) {
+      setSelectedProduct(product)
+    } else {
+      addToCart({
+        product_id: product.id,
+        quantity: 1,
+        product_code: generateProductKey(product?.id, {}),
+        unit_price: product.price,
+        product_name: product.name,
+        product_image: product.image_url,
+        options: [],
+      })
+    }
+
+    // setSelectedProduct(product)
   }
 
   const handleCheckout = () => {
@@ -100,7 +100,7 @@ const HomePage = () => {
 
       <main className="main-content">
         <div className="hero-section">
-          <h1>Welcome {isAuthenticated ? `${user?.full_name} !` : `to ${storeName}`}</h1>
+          <h1>Welcome {isAuthenticated ? `${toCapitalize(user?.full_name)} !` : `to ${storeName}`}</h1>
           <p>Discover your perfect brew</p>
         </div>
 
@@ -111,7 +111,7 @@ const HomePage = () => {
         ) : null}
 
         {menuVisible && websiteOrderingEnabled ? (
-          <ProductCatalog onCustomize={handleSelectedProduct} />
+          <ProductCatalog onClick={handleSelectedProduct} />
         ) : (
           <div className="system-empty-state">
             <h2>Ordering is not available right now</h2>
@@ -130,7 +130,7 @@ const HomePage = () => {
 
       {isCheckOutOpen && websiteOrderingEnabled && orderAcceptanceOpen && (
         <CheckoutForm
-          cartItems={cartItems}
+          cartItems={cart}
           onClose={() => setIsCheckOutOpen(false)}
           onOrderComplete={handleOrderComplete}
           systemSettings={systemSettings}

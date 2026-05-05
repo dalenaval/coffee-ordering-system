@@ -3,7 +3,8 @@ from sqlalchemy import Column, Numeric, Boolean, Text, DateTime, Integer, Foreig
 from app.db.session import Base
 from sqlalchemy.orm import relationship
 
-class Product(Base):
+from app.db.timeStampMixin import TimeStampMixin
+class Product(Base, TimeStampMixin):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -19,3 +20,7 @@ class Product(Base):
     category = relationship("Category", back_populates="products")
     product_attributes = relationship("ProductAttribute", back_populates="product")
     cart_product = relationship('CartItem', back_populates="product")
+
+    @property
+    def has_options(self):
+        return len(self.product_attributes) > 0

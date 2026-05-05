@@ -13,6 +13,7 @@ class ProductBase(BaseModel):
     image_url: Optional[str] = Field(None, max_length=2048)
     stock:int
     low_stock_threshold:int
+    has_options: bool 
     is_available: bool 
 class ProductCreate(ProductBase):
     pass
@@ -32,6 +33,7 @@ class ProductUpdate(BaseModel):
 
 #     model_config = ConfigDict(from_attributes=True)
 
+
 class ProductResponse(BaseModel):
     id: int
     name: str
@@ -45,3 +47,6 @@ class ProductResponse(BaseModel):
     category: Optional[CategoryResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class MenuResponse(ProductResponse):
+     has_options: bool 
