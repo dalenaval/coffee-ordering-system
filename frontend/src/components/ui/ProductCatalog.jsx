@@ -3,8 +3,9 @@ import ProductCard from './ProductCard'
 import { useGetCategories } from '@/hooks/useGetCategories'
 import { useState } from 'react'
 import { useGetProduct } from '@/hooks/useProductQuery'
+import { toCapitalize } from '@/utils/toCapitalize'
 
-const ProductCatalog = ({ onCustomize }) => {
+const ProductCatalog = ({ onClick }) => {
   const [selectedCategory, setSelectedCategory] = useState({
     id: 0,
     name: 'all',
@@ -27,7 +28,7 @@ const ProductCatalog = ({ onCustomize }) => {
     return (
       <div className="product-grid">
         {products?.map((product) => (
-          <ProductCard key={product?.id} product={product} onCustomize={onCustomize} />
+          <ProductCard key={product?.id} product={product} onClick={onClick} />
         ))}
       </div>
     )
@@ -42,7 +43,7 @@ const ProductCatalog = ({ onCustomize }) => {
               className={`category-button ${selectedCategory?.name === category?.name ? 'active' : ''}`}
               onClick={() => onSelectCategory(category)}
             >
-              {category?.name?.charAt(0)?.toUpperCase() + category?.name?.slice(1)}
+              {toCapitalize(category?.name)}
             </button>
           ))}
         </div>

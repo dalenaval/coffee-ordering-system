@@ -1,4 +1,4 @@
 export const toCapitalize = (str) => {
   if (!str) return ''
-  return str.charAt(0).toUpperCase() + str.slice(1)
+  return str.replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
 }

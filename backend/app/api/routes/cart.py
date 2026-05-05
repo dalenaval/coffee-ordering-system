@@ -31,8 +31,11 @@ def add_products_to_cart( payload: dict,user_id = Depends(get_current_user), db:
             db.commit() 
             return {"message": "Item successfully added to cart", 
                 "cart_item_id": existingItem.id}
-
-        option_items = flatten_list(payload.get("options"))
+        
+        if not payload.get("options"):
+            option_items = []
+        else:
+            option_items = flatten_list(payload.get("options"))
 
         option_total = sum(float(item.get("price_modifier", 0)) for item in option_items)
         item_total_price = calculate_line_total(payload.get("unit_price"), option_total, payload.get("quantity"))

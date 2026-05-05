@@ -5,11 +5,11 @@ from app.models.product import Product
 from app.models.category import Category
 
 
-from app.schemas.product import ProductResponse
+from app.schemas.product import MenuResponse
 
 router = APIRouter(prefix="/menu", tags=["Menu"])
 
-@router.get("/", response_model=list[ProductResponse])
+@router.get("/", response_model=list[MenuResponse])
 def get_menu_items(
     db: Session = Depends(get_db), 
     category_id : int | None = Query (None, description='Filter by Category ID')):
