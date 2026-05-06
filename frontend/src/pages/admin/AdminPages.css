@@ -309,12 +309,7 @@
   .admin-toolbar input {
     min-width: 100%;
   }
-
-  .table-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
+  
   .quick-actions {
     flex-direction: column;
   }
@@ -1061,4 +1056,118 @@
   .employee-form-actions {
     flex-direction: column;
   }
+}
+
+.admin-detail-item.wide {
+  grid-column: 1 / -1;
+}
+
+.admin-cancel-panel {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.admin-cancel-panel h4 {
+  margin: 0 0 6px;
+  color: #9a3412;
+}
+
+.admin-cancel-panel p {
+  margin: 0;
+  color: #7c2d12;
+}
+
+.badge.cancel-requested {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.badge.refunded {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.paid {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+  .admin-cancel-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.cancel-request-column {
+  min-width: 180px;
+}
+
+.cancel-request-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 170px;
+}
+
+.cancel-request-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-request-reason {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #7c2d12;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  padding: 6px 10px;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-action-btn {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-action-btn.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.admin-action-btn.danger:hover {
+  background: #fecaca;
+}
+
+.muted-text {
+  color: #9ca3af;
+  font-size: 13px;
 }

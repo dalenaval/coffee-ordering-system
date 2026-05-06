@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Numeric
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Numeric, Boolean, Text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -18,6 +18,13 @@ class Order(Base, TimeStampMixin):
     subtotal = Column(Numeric(10, 2), nullable=False, default=0)
     total_amount = Column(Numeric(10, 2), nullable=False, default=0)
     # created_at = Column(DateTime(timezone=True), server_default=func.now())
+    cancel_requested = Column(Boolean, default=False)
+    cancel_reason = Column(Text, nullable=True)
+    cancel_requested_at = Column(DateTime(timezone=True), nullable=True)
+    cancelled_at = Column(DateTime(timezone=True), nullable=True)
+    refund_status = Column(String(50), nullable=True)
+    refund_id = Column(String(255), nullable=True)
+    refund_reason = Column(Text, nullable=True)
 
     user = relationship("User")
     payment = relationship("Payment", back_populates="order", uselist=False)
