@@ -104,3 +104,23 @@ class PayMongoService(PaymentGateway):
 
         return response.json()
     
+    def create_refund(self, payment_id: str, amount: float, reason: str = "requested_by_customer") -> dict:
+        url = f"{self.BASE_URL}/refunds"
+    
+        payload = {
+            "data": {
+                "attributes": {
+                    "payment_id": payment_id,
+                    "amount": int(round(float(amount) * 100)),
+                    "reason": reason,
+                }
+            }
+        }
+    
+        response = requests.post(url, json=payload, headers=get_auth_header())
+    
+        if response.status_code not in [200, 201]:
+            raise Exception(f"PayMongo Refund Error: {response.text}")
+    
+        return response.json()
+    

@@ -12,6 +12,7 @@ from app.models.order_item_option import OrderItemOption
 from app.models.payment import Payment
 from app.models.stock_log import StockLog
 from app.services.paymongo_service import PayMongoService
+from app.services.stock_service import restore_stock_after_cancellation
 from app.core.config import PAYMONGO_SECRET_KEY,PAYMONGO_BASE_URL, FRONTEND_URL
 
 import resend
@@ -19,6 +20,7 @@ import base64
 import httpx
 
 from typing import Dict, Optional
+from datetime import datetime
 
 from app.db.deps import get_db
 from app.services.auth import get_current_user
@@ -54,9 +56,46 @@ def get_orders(db: Session = Depends(get_db)):
             "status": order.status,
             "subtotal": float(order.subtotal or 0),
             "total_amount": float(order.total_amount or 0),
-            "created_at":order.created_at,
+            "created_at": order.created_at, 
+
+            # cancellation/refund fields
+            "cancel_requested": order.cancel_requested,
+            "cancel_reason": order.cancel_reason,
+            "cancel_requested_at": order.cancel_requested_at,
+            "cancelled_at": order.cancelled_at,
+            "refund_status": order.refund_status,
+            "refund_id": order.refund_id,
+            "refund_reason": order.refund_reason,
         }
         for order, user in rows
+    ]
+
+@router.get("/my-orders")
+def get_my_orders(
+    user_id=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    rows = (
+        db.query(Order)
+        .filter(Order.user_id == user_id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": order.id,
+            "order_no": order.order_no,
+            "order_type": order.order_type,
+            "status": order.status,
+            "subtotal": float(order.subtotal or 0),
+            "total_amount": float(order.total_amount or 0),
+            "created_at": order.created_at,
+            "cancel_requested": order.cancel_requested,
+            "cancel_reason": order.cancel_reason,
+            "refund_status": order.refund_status,
+        }
+        for order in rows
     ]
 
 @router.get("/{order_id}")
@@ -318,3 +357,145 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
     #     "total_amount": float(order.total_amount),
     #     "created_at": order.created_at,
     # }
+
+@router.post("/{order_id}/request-cancel")
+def request_cancel_order(
+    order_id: int,
+    payload: dict,
+    user_id=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    order = (
+        db.query(Order)
+        .filter(Order.id == order_id, Order.user_id == user_id)
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found.")
+
+    normalized_status = str(order.status or "").lower()
+
+    if normalized_status not in ["pending", "paid"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Cancellation is only allowed before preparation starts."
+        )
+
+    if order.cancel_requested:
+        raise HTTPException(
+            status_code=400,
+            detail="Cancellation request already submitted."
+        )
+
+    order.cancel_requested = True
+    order.cancel_reason = payload.get("reason")
+    order.cancel_requested_at = datetime.now()
+    order.status = "Cancel Requested"
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "message": "Cancellation request submitted.",
+        "order": {
+            "id": order.id,
+            "order_no": order.order_no,
+            "status": order.status,
+            "cancel_reason": order.cancel_reason,
+        }
+    }
+
+@router.post("/{order_id}/admin-cancel-refund")
+def admin_cancel_and_refund(order_id: int, payload: dict, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found.")
+
+    if order.status in ["Cancelled", "Refunded"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Order is already cancelled or refunded."
+        )
+
+    payment = db.query(Payment).filter(Payment.order_id == order.id).first()
+
+    refund_reason = payload.get("reason", "requested_by_customer")
+
+    try:
+        if payment and payment.payment_status in ["paid", "succeeded"]:
+            service = PayMongoService()
+
+            payment_id = service.get_first_payment_id_from_intent(
+                payment.payment_intent_id
+            )
+
+            refund = service.create_refund(
+                payment_id=payment_id,
+                amount=float(payment.total_amount or order.total_amount),
+                reason=refund_reason,
+            )
+
+            order.refund_status = "refunded"
+            order.refund_id = refund["data"]["id"]
+            order.refund_reason = refund_reason
+
+            payment.payment_status = "refunded"
+
+        restore_stock_after_cancellation(order, db)
+
+        order.status = "Refunded" if payment else "Cancelled"
+        order.cancelled_at = datetime.now()
+        order.cancel_requested = False
+
+        db.commit()
+        db.refresh(order)
+
+        return {
+            "message": "Order cancelled and refund processed successfully.",
+            "order": {
+                "id": order.id,
+                "order_no": order.order_no,
+                "status": order.status,
+                "refund_status": order.refund_status,
+                "refund_id": order.refund_id,
+            }
+        }
+
+    except Exception as e:
+        db.rollback()
+        order.refund_status = "refund_failed"
+        order.refund_reason = str(e)
+        db.commit()
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Refund failed: {str(e)}"
+        )
+    
+@router.post("/{order_id}/reject-cancel")
+def reject_cancel_request(order_id: int, payload: dict, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found.")
+
+    if not order.cancel_requested:
+        raise HTTPException(status_code=400, detail="No cancellation request found.")
+
+    order.cancel_requested = False
+    order.refund_reason = payload.get("reason", "Cancellation request rejected.")
+    order.status = "Paid"
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "message": "Cancellation request rejected.",
+        "order": {
+            "id": order.id,
+            "order_no": order.order_no,
+            "status": order.status,
+        }
+    }
