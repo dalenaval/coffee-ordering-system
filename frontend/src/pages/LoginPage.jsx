@@ -1,12 +1,22 @@
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import './LoginPage.css'
 import { useAuthLogin } from '@/hooks/useAuthQuery'
 import RegisterModal from '@/components/ui/RegisterModal'
+import { useEmailVerification } from '@/hooks/useRegistrationQuery'
 
 export default function LoginPage() {
   const { mutate: loginUser, isPending } = useAuthLogin()
   const [showSignUp, setShowSignUp] = useState(false)
+  const searchParams = useSearchParams()
+  const verification_token = searchParams[0].get('email_verify')
+  const { mutate: verifyEmail } = useEmailVerification()
+
+  useEffect(() => {
+    if (verification_token) {
+      verifyEmail({ token: verification_token })
+    }
+  }, [verification_token, verifyEmail])
 
   const [form, setForm] = useState({
     email: '',

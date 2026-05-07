@@ -39,6 +39,8 @@ export const useAuthLogin = () => {
           throw new Error('Failed to get token')
         }
 
+        queryClient.clear()
+
         setAuthToken(token) // Set token in auth store for global access
 
         const me = await queryClient.fetchQuery({

@@ -20,7 +20,12 @@ export const getCurrentUser = async () => {
   return response.data
 }
 
-export const verifyEmail = async (payload) => {
-  const response = await api.post('/users/verify', payload)
+export const checkEmail = async (email) => {
+  const response = await api.post('/users/email/check', { email })
+  return response.data
+}
+
+export const verifyEmail = async (token) => {
+  const response = await api.post('/users/email/verify', { token })
   return response.data
 }
