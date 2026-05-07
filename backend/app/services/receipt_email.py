@@ -58,7 +58,7 @@ def send_receipt_email(order, db):
     """
 
     return resend.Emails.send({
-        "from": "Kape Nga Ni <onboarding@resend.dev>",
+        "from": "Kape Nga Ni <hello@kapengani.site>",
         "to": [customer_email],
         "subject": f"Your Kape Nga Ni Receipt - {order.order_no}",
         "html": html,
