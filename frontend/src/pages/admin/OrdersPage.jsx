@@ -1,30 +1,33 @@
 import { useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import AdminLayout from '../../components/admin/AdminLayout'
 import './AdminPages.css'
-import {
-  useCancelOrder,
-  useGetOrderDetails,
-  useGetOrders,
-  useRejectCancelRequest,
-  useUpdateOrderStatus,
-} from '@/hooks/useOrderQuery'
+import { useGetOrderDetails, useGetOrders, useUpdateOrderStatus } from '@/hooks/useOrderQuery'
 import { toCapitalize } from '@/utils/toCapitalize'
-import { rejectCancelOrder } from '../../api/orderService'
+import { adminCancelAndRefundOrder, rejectCancelOrder } from '../../api/orderService'
 
 export default function OrdersPage() {
+  const queryClient = useQueryClient()
+
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [showModal, setShowModal] = useState(false)
 
-  const { data: orders, isLoading: isOrdersLoading } = useGetOrders()
+  const { data: orders = [], isLoading: isOrdersLoading } = useGetOrders()
   const { data: orderDetails, isLoading: isOrderDetailsLoading } = useGetOrderDetails(selectedOrderId)
 
   const { mutate: mutateOrderStatus } = useUpdateOrderStatus()
 
-  const { mutate: mutateCancelOrder } = useCancelOrder()
+  const refreshOrders = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['orders'] })
 
-  const { mutate: mutateRejectCancel } = useRejectCancelRequest()
+    if (selectedOrderId) {
+      await queryClient.invalidateQueries({
+        queryKey: ['order_details', selectedOrderId],
+      })
+    }
+  }
 
   const normalize = (value) => String(value || '').toLowerCase()
 
@@ -39,7 +42,14 @@ export default function OrdersPage() {
   }
 
   const handleStatusChange = (orderId, status) => {
-    mutateOrderStatus({ orderId, status })
+    mutateOrderStatus(
+      { orderId, status },
+      {
+        onSuccess: async () => {
+          await refreshOrders()
+        },
+      }
+    )
   }
 
   const handleAdminCancelRefund = async (orderId) => {
@@ -47,18 +57,32 @@ export default function OrdersPage() {
 
     if (!reason) return
 
-    mutateCancelOrder({ orderId, reason })
+    try {
+      await adminCancelAndRefundOrder(orderId, reason)
+      await refreshOrders()
+      alert('Order cancelled and refunded successfully.')
+    } catch (error) {
+      console.error(error)
+      alert(error?.response?.data?.detail || 'Failed to cancel and refund order.')
+    }
   }
 
   const handleRejectCancel = async (orderId) => {
     const reason = window.prompt('Enter rejection reason:')
 
     if (!reason) return
-    mutateRejectCancel({ orderId, reason })
+
+    try {
+      await rejectCancelOrder(orderId, reason)
+      await refreshOrders()
+      alert('Cancellation request rejected.')
+    } catch (error) {
+      console.error(error)
+      alert(error?.response?.data?.detail || 'Failed to reject cancellation.')
+    }
   }
 
   const filteredOrders = useMemo(() => {
-    if (!orders) return []
     return orders.filter((order) => {
       const q = search.toLowerCase()
 
@@ -99,6 +123,10 @@ export default function OrdersPage() {
             <option value="cancelled">Cancelled</option>
             <option value="refunded">Refunded</option>
           </select>
+
+          <button type="button" onClick={refreshOrders}>
+            Refresh
+          </button>
         </div>
 
         <div className="admin-table-wrap">
