@@ -18,17 +18,18 @@ export const getMenuList = async (category) => {
 }
 
 export const getProducts = async (category) => {
-const params = category && category?.name !== "all" ? { category_id: category.id } : {};
-  const response = await api.get(`/products/`, { params });
-  return response?.data;
-};
+  const params = category && category?.name !== 'all' ? { category_id: category.id } : {}
+  const response = await api.get(`/products/`, { params })
+  return response?.data
+}
 
 export const getLowStockProducts = async () => {
-  const response = await api.get("/products/low-stock");
-  return response.data;
-};
+  const response = await api.get('/products/low-stock')
+  return response.data
+}
 
 export const restockProduct = async (productId, payload) => {
-  const response = await api.post(`/products/${productId}/restock`, payload);
-  return response.data;
-};
+  console.log('productId:', productId, 'payload:', payload)
+  const response = await api.post(`/products/${productId}/restock`, payload)
+  return response.data
+}

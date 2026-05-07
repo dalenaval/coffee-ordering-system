@@ -1,49 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
-import { getDashboardSummary } from '../../api/dashboardService'
-import { getLowStockProducts, restockProduct } from '../../api/productService'
 import './AdminPages.css'
 import { toCapitalize } from '@/utils/toCapitalize'
+import { useGetDashboardSummary, useGetLowStockProducts, useRestockProduct } from '@/hooks/useDashboardQuery'
 
 export default function DashboardPage() {
-  const [summary, setSummary] = useState({
-    total_orders: 0,
-    total_products: 0,
-    total_customers: 0,
-    total_sales: 0,
-    recent_orders: [],
-  })
+  const { data: summary, isLoading: isSummaryLoading } = useGetDashboardSummary()
+  const { data: lowStockCount } = useGetLowStockProducts()
+  const restockProduct = useRestockProduct()
 
-  const [lowStock, setLowStock] = useState([])
   const [restockingId, setRestockingId] = useState(null)
   const [confirmModal, setConfirmModal] = useState({
     open: false,
     productId: null,
     productName: '',
   })
-
-  useEffect(() => {
-    fetchSummary()
-    fetchLowStock()
-  }, [])
-
-  const fetchSummary = async () => {
-    try {
-      const data = await getDashboardSummary()
-      setSummary(data)
-    } catch (error) {
-      console.error('Failed to load dashboard summary:', error)
-    }
-  }
-
-  const fetchLowStock = async () => {
-    try {
-      const data = await getLowStockProducts()
-      setLowStock(data)
-    } catch (error) {
-      console.error('Failed to load low stock products:', error)
-    }
-  }
 
   const openRestockModal = (productId, productName) => {
     setConfirmModal({
@@ -61,16 +32,18 @@ export default function DashboardPage() {
     })
   }
 
-  const handleQuickRestock = async () => {
+  const handleQuickRestock = () => {
+    console.log(confirmModal.productId)
     try {
       setRestockingId(confirmModal.productId)
-      await restockProduct(confirmModal.productId, {
+
+      const payloadData = {
         quantity: 10,
         remarks: 'Quick restock from dashboard',
-      })
+      }
+
+      restockProduct.mutate({ productId: confirmModal.productId, payload: payloadData })
       closeRestockModal()
-      await fetchLowStock()
-      await fetchSummary()
     } catch (error) {
       console.error('Failed to restock product:', error)
     } finally {
@@ -78,6 +51,13 @@ export default function DashboardPage() {
     }
   }
 
+  if (isSummaryLoading) {
+    return (
+      <AdminLayout title="Dashboard">
+        <div className="admin-loading-state">Loading dashboard summary...</div>
+      </AdminLayout>
+    )
+  }
   return (
     <AdminLayout title="Dashboard">
       <section className="admin-hero-card">
@@ -89,22 +69,22 @@ export default function DashboardPage() {
       <section className="admin-summary-grid">
         <div className="admin-summary-card summary-card orders">
           <h4>🧾 Orders</h4>
-          <h2>{summary.total_orders}</h2>
+          <h2>{summary?.total_orders || 0}</h2>
         </div>
 
         <div className="admin-summary-card summary-card products">
           <h4>☕ Products</h4>
-          <h2>{summary.total_products}</h2>
+          <h2>{summary?.total_products || 0}</h2>
         </div>
 
         <div className="admin-summary-card summary-card customers">
           <h4>👥 Customers</h4>
-          <h2>{summary.total_customers}</h2>
+          <h2>{summary?.total_customers || 0}</h2>
         </div>
 
         <div className="admin-summary-card summary-card sales">
           <h4>💰 Sales</h4>
-          <h2>₱{Number(summary.total_sales).toLocaleString()}</h2>
+          <h2>₱{Number(summary?.total_sales || 0).toLocaleString()}</h2>
         </div>
       </section>
 
@@ -126,8 +106,8 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {lowStock.length > 0 ? (
-                lowStock.map((item) => (
+              {lowStockCount.length > 0 ? (
+                lowStockCount.map((item) => (
                   <tr key={item.id}>
                     <td>{item.name}</td>
                     <td>{item.stock}</td>
