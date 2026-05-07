@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import './RegisterModal.css'
 import { Eye, EyeClosed } from 'lucide-react'
-import { registerUser, verifyEmail } from '@/api/userService'
 import Swal from 'sweetalert2'
+import { useCreateUser, useCheckEmailAvailability } from '@/hooks/useRegistrationQuery'
 
 const RegisterModal = ({ setShowSignUp, onClose }) => {
   const [form, setForm] = useState({
@@ -15,6 +15,8 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
   const [showPassword, setShowPassword] = useState(false)
   const [showCPassword, setShowCPassword] = useState(false)
   const [confirmPassword, setConfirmPasword] = useState('')
+  const { mutate: checkEmail } = useCheckEmailAvailability()
+  const { mutate: registerUser } = useCreateUser()
 
   const isPending = false
 
@@ -22,18 +24,7 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
     e.preventDefault()
     try {
       if (form.password === confirmPassword) {
-        await registerUser(form)
-
-        Swal.fire({
-          icon: 'success',
-          text: 'Account Created',
-          confirmButtonText: 'Proceed to Login',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            setShowSignUp(false)
-            navigation('/login')
-          }
-        })
+        registerUser({ payload: form })
       } else {
         Swal.fire({
           icon: 'error',
@@ -41,11 +32,11 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
           text: 'Password does not match !',
         })
       }
-    } catch (e) {
+    } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Something went wrong please try again !',
+        text: error || 'Something went wrong please try again !',
       })
     }
   }
@@ -53,22 +44,7 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
   const handleVerification = async () => {
     if (!form.email) return
 
-    try {
-      const verifyRes = await verifyEmail({ email: form.email })
-      console.log(verifyRes)
-      Swal.fire({
-        icon: 'success',
-        text: verifyRes.detail,
-        timer: 1500,
-      })
-    } catch (error) {
-      console.log(error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Something went wrong',
-      })
-    }
+    checkEmail({ email: form.email })
   }
 
   const handleChange = (e) => {
@@ -119,7 +95,13 @@ const RegisterModal = ({ setShowSignUp, onClose }) => {
                 />
 
                 {/* The clickable icon or button */}
-                <button type="button" className="form-input-button" role="button" onClick={handleVerification}>
+                <button
+                  type="button"
+                  className={'form-input-button ' + (!form.email ? 'disabled' : '')}
+                  role="button"
+                  onClick={handleVerification}
+                  disabled={!form.email}
+                >
                   Verify
                 </button>
               </div>

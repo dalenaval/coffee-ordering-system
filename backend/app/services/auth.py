@@ -11,8 +11,10 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
     if credentials is None:
         return None
     
+    print(f"Received credentials: {credentials}")  # Debug log
     token = credentials.credentials
 
+    print(f"Extracted token: {token}")  #
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")

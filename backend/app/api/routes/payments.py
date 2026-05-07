@@ -2,6 +2,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 
+from datetime import datetime, timezone
 from app.db.deps import get_db
 from app.models.orders import Order
 from app.models.payment import Payment
@@ -129,11 +130,15 @@ def verify_payment(payload: dict, db: Session = Depends(get_db)):
         paymongo_result = service.retrieve_payment_intent(payment_intent_id)
 
         paymongo_status = paymongo_result["data"]["attributes"]["status"]
+        payment_paid_at = datetime.fromtimestamp(paymongo_result["data"]["attributes"]["paid_at"], tz=timezone.utc)
 
         if paymongo_status in ["succeeded", "paid"]:
             if payment.payment_status != "paid":
                 deduct_stock_after_payment(order, db)
         
+            if payment_paid_at:
+                payment.paid_at = payment_paid_at
+                
             payment.payment_status = "paid"
             order.status = "paid"
         

@@ -17,7 +17,7 @@ def send_receipt_email(order, db):
         items_html += f"""
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;">
-                {item.quantity}x Product #{item.product_id}
+                {item.quantity}x {item.product.name}
             </td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">
                 ₱ {float(item.line_total):.2f}

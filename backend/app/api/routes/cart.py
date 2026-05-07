@@ -95,14 +95,7 @@ def update_cart_item(payload: dict, cart_item_id:int, user_id = Depends(get_curr
     cart_item = db.query(CartItem).filter(CartItem.id == cart_item_id).first()
 
     if not cart_item:
-        HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")
-
-    quantity = payload.get("quantity", 0) + (cart_item.quantity if cart_item else 0)
-    has_stock = db.query(Product).filter(Product.id == payload.get("product_id"), Product.stock >= quantity).first()
-       
-    if not has_stock:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient stock for the requested quantity")
-    
+        HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")    
 
     user_cart = db.query(Cart).filter(Cart.user_id == user_id).first()
 
@@ -113,7 +106,12 @@ def update_cart_item(payload: dict, cart_item_id:int, user_id = Depends(get_curr
         remove_cart_item(cart_item.id, user_id, db )
 
         return {'status':"success", 'message': 'Cart item and its options removed successfully'}
-
+    
+    has_stock = db.query(Product).filter(Product.id == cart_item.product_id, Product.stock >= payload.get("quantity")).first()
+       
+    if not has_stock:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient stock for the requested quantity")
+    
     item_total_price = (float(cart_item.unit_price )+ float(cart_item.option_total)) * float(payload.get("quantity"))
     cart_item.quantity = payload.get("quantity")
     cart_item.total_price = item_total_price

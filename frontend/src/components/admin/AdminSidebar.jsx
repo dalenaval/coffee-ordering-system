@@ -1,82 +1,80 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getLowStockProducts } from "../../api/productService";
-import { useAuth } from "@/store/useAuthStore";
-import "./AdminLayout.css";
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { getLowStockProducts } from '../../api/productService'
+import { useAuth } from '@/store/useAuthStore'
+import './AdminLayout.css'
 
 export default function AdminSidebar() {
-  const navigate = useNavigate();
-  const { user, clearAuth } = useAuth();
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
-  const role = user?.role?.toLowerCase() || "staff";
-  const fullName = user?.full_name || "User";
+  const role = user?.role?.toLowerCase() || 'staff'
+  const fullName = user?.full_name || 'User'
 
-  const [lowStockCount, setLowStockCount] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0)
 
   useEffect(() => {
-    fetchLowStockCount();
-  }, []);
+    fetchLowStockCount()
+  }, [])
 
   const fetchLowStockCount = async () => {
     try {
-      const data = await getLowStockProducts();
-      setLowStockCount(data.length || 0);
+      const data = await getLowStockProducts()
+      setLowStockCount(data.length || 0)
     } catch (error) {
-      console.error("Failed to load low stock count:", error);
+      console.error('Failed to load low stock count:', error)
     }
-  };
+  }
 
   const handleLogout = () => {
-    clearAuth?.();
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+    logout()
+    navigate('/login')
+  }
 
   const menu = [
     {
-      label: "Dashboard",
-      path: "/dashboard",
-      icon: "📊",
-      roles: ["admin", "manager", "staff"],
+      label: 'Dashboard',
+      path: '/dashboard',
+      icon: '📊',
+      roles: ['admin', 'manager', 'staff'],
     },
     {
-      label: "Orders",
-      path: "/orders",
-      icon: "🧾",
-      roles: ["admin", "manager", "staff"],
+      label: 'Orders',
+      path: '/orders',
+      icon: '🧾',
+      roles: ['admin', 'manager', 'staff'],
     },
     {
-      label: "Products",
-      path: "/products",
-      icon: "☕",
-      roles: ["admin", "manager"],
+      label: 'Products',
+      path: '/products',
+      icon: '☕',
+      roles: ['admin', 'manager'],
     },
     {
-      label: "Reports",
-      path: "/reports",
-      icon: "📈",
-      roles: ["admin", "manager"],
+      label: 'Reports',
+      path: '/reports',
+      icon: '📈',
+      roles: ['admin', 'manager'],
     },
     {
-      label: "Employees",
-      path: "/employees",
-      icon: "👥",
-      roles: ["admin", "manager"],
+      label: 'Employees',
+      path: '/employees',
+      icon: '👥',
+      roles: ['admin', 'manager'],
     },
     {
-      label: "Staff Scheduling",
-      path: "/staff-scheduling",
-      icon: "🗓️",
-      roles: ["admin", "manager"],
+      label: 'Staff Scheduling',
+      path: '/staff-scheduling',
+      icon: '🗓️',
+      roles: ['admin', 'manager'],
     },
     {
-      label: "System Control",
-      path: "/system-control",
-      icon: "🛠️",
-      roles: ["admin"],
+      label: 'System Control',
+      path: '/system-control',
+      icon: '🛠️',
+      roles: ['admin'],
     },
-  ];
+  ]
 
   return (
     <aside className="admin-sidebar">
@@ -102,9 +100,7 @@ export default function AdminSidebar() {
             <strong>Stock Alerts</strong>
             <p>Items needing replenishment</p>
           </div>
-          <span className={`sidebar-alert-badge ${lowStockCount > 0 ? "danger" : "ok"}`}>
-            {lowStockCount}
-          </span>
+          <span className={`sidebar-alert-badge ${lowStockCount > 0 ? 'danger' : 'ok'}`}>{lowStockCount}</span>
         </div>
 
         <nav className="admin-nav">
@@ -123,5 +119,5 @@ export default function AdminSidebar() {
         Logout
       </button>
     </aside>
-  );
+  )
 }
