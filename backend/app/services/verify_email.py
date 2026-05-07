@@ -24,7 +24,7 @@ def send_verification_email(email, token):
     """
 
     return resend.Emails.send({
-        "from": "Kape Nga Ni <onboarding@resend.dev>",
+        "from": "Kape Nga Ni <hello@kapengani.site>",
         "to": email,
         "subject": "Verify your email address",
         "html": html

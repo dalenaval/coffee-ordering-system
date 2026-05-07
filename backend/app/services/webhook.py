@@ -98,7 +98,7 @@ def send_receipt(order:dict, payment: dict)->Dict:
         )
 
         resend.Emails.send({
-            "from": "onboarding@resend.dev",
+            "from": "Kape Nga Ni <hello@kapengani.site>",
             "to":[order.get("email")],
             "subject":f"Kape NgaNI Purchase Receipt",
             "html": receipt_html
