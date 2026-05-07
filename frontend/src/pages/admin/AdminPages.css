@@ -309,7 +309,7 @@
   .admin-toolbar input {
     min-width: 100%;
   }
-  
+
   .quick-actions {
     flex-direction: column;
   }
@@ -1084,6 +1084,9 @@
   color: #7c2d12;
 }
 
+.badge {
+  text-align: center;
+}
 .badge.cancel-requested {
   background: #fff7ed;
   color: #c2410c;

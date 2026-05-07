@@ -1,8 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { getLowStockProducts } from '../../api/productService'
 import { useAuth } from '@/store/useAuthStore'
 import './AdminLayout.css'
+import { useGetLowStockProducts } from '@/hooks/useDashboardQuery'
 
 export default function AdminSidebar() {
   const navigate = useNavigate()
@@ -11,20 +10,7 @@ export default function AdminSidebar() {
   const role = user?.role?.toLowerCase() || 'staff'
   const fullName = user?.full_name || 'User'
 
-  const [lowStockCount, setLowStockCount] = useState(0)
-
-  useEffect(() => {
-    fetchLowStockCount()
-  }, [])
-
-  const fetchLowStockCount = async () => {
-    try {
-      const data = await getLowStockProducts()
-      setLowStockCount(data.length || 0)
-    } catch (error) {
-      console.error('Failed to load low stock count:', error)
-    }
-  }
+  const { data: lowStockProducts } = useGetLowStockProducts()
 
   const handleLogout = () => {
     logout()
@@ -78,7 +64,7 @@ export default function AdminSidebar() {
 
   return (
     <aside className="admin-sidebar">
-      <div>
+      <div className="admin-header-group">
         <div className="admin-brand">
           <div className="admin-brand-logo">☕</div>
           <div>
@@ -100,20 +86,21 @@ export default function AdminSidebar() {
             <strong>Stock Alerts</strong>
             <p>Items needing replenishment</p>
           </div>
-          <span className={`sidebar-alert-badge ${lowStockCount > 0 ? 'danger' : 'ok'}`}>{lowStockCount}</span>
+          <span className={`sidebar-alert-badge ${lowStockProducts?.length > 0 ? 'danger' : 'ok'}`}>
+            {lowStockProducts?.length || 0}
+          </span>
         </div>
-
-        <nav className="admin-nav">
-          {menu
-            .filter((item) => item.roles.includes(role))
-            .map((item) => (
-              <NavLink key={item.path} to={item.path} className="admin-nav-item">
-                <span className="admin-nav-icon">{item.icon}</span>
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-        </nav>
       </div>
+      <nav className="admin-nav">
+        {menu
+          .filter((item) => item.roles.includes(role))
+          .map((item) => (
+            <NavLink key={item.path} to={item.path} className="admin-nav-item">
+              <span className="admin-nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+      </nav>
 
       <button className="admin-logout-btn" onClick={handleLogout}>
         Logout
