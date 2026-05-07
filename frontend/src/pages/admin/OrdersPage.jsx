@@ -1,43 +1,32 @@
-import { useMemo, useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
-import AdminLayout from "../../components/admin/AdminLayout"
-import "./AdminPages.css"
+import { useMemo, useState } from 'react'
+import AdminLayout from '../../components/admin/AdminLayout'
+import './AdminPages.css'
 import {
+  useCancelOrder,
   useGetOrderDetails,
   useGetOrders,
+  useRejectCancelRequest,
   useUpdateOrderStatus,
-} from "@/hooks/useOrderQuery"
-import { toCapitalize } from "@/utils/toCapitalize"
-import {
-  adminCancelAndRefundOrder,
-  rejectCancelOrder,
-} from "../../api/orderService"
+} from '@/hooks/useOrderQuery'
+import { toCapitalize } from '@/utils/toCapitalize'
+import { rejectCancelOrder } from '../../api/orderService'
 
 export default function OrdersPage() {
-  const queryClient = useQueryClient()
-
   const [selectedOrderId, setSelectedOrderId] = useState(null)
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
   const [showModal, setShowModal] = useState(false)
 
-  const { data: orders = [], isLoading: isOrdersLoading } = useGetOrders()
-  const { data: orderDetails, isLoading: isOrderDetailsLoading } =
-    useGetOrderDetails(selectedOrderId)
+  const { data: orders, isLoading: isOrdersLoading } = useGetOrders()
+  const { data: orderDetails, isLoading: isOrderDetailsLoading } = useGetOrderDetails(selectedOrderId)
 
   const { mutate: mutateOrderStatus } = useUpdateOrderStatus()
 
-  const refreshOrders = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["orders"] })
+  const { mutate: mutateCancelOrder } = useCancelOrder()
 
-    if (selectedOrderId) {
-      await queryClient.invalidateQueries({
-        queryKey: ["order_details", selectedOrderId],
-      })
-    }
-  }
+  const { mutate: mutateRejectCancel } = useRejectCancelRequest()
 
-  const normalize = (value) => String(value || "").toLowerCase()
+  const normalize = (value) => String(value || '').toLowerCase()
 
   const handleOpenModal = (order) => {
     setSelectedOrderId(order?.id)
@@ -50,64 +39,38 @@ export default function OrdersPage() {
   }
 
   const handleStatusChange = (orderId, status) => {
-    mutateOrderStatus(
-      { orderId, status },
-      {
-        onSuccess: async () => {
-          await refreshOrders()
-        },
-      }
-    )
+    mutateOrderStatus({ orderId, status })
   }
 
   const handleAdminCancelRefund = async (orderId) => {
-    const reason = window.prompt("Enter refund/cancellation reason:")
+    const reason = window.prompt('Enter refund/cancellation reason:')
 
     if (!reason) return
 
-    try {
-      await adminCancelAndRefundOrder(orderId, reason)
-      await refreshOrders()
-      alert("Order cancelled and refunded successfully.")
-    } catch (error) {
-      console.error(error)
-      alert(error?.response?.data?.detail || "Failed to cancel and refund order.")
-    }
+    mutateCancelOrder({ orderId, reason })
   }
 
   const handleRejectCancel = async (orderId) => {
-    const reason = window.prompt("Enter rejection reason:")
+    const reason = window.prompt('Enter rejection reason:')
 
     if (!reason) return
-
-    try {
-      await rejectCancelOrder(orderId, reason)
-      await refreshOrders()
-      alert("Cancellation request rejected.")
-    } catch (error) {
-      console.error(error)
-      alert(error?.response?.data?.detail || "Failed to reject cancellation.")
-    }
+    mutateRejectCancel({ orderId, reason })
   }
 
   const filteredOrders = useMemo(() => {
+    if (!orders) return []
     return orders.filter((order) => {
       const q = search.toLowerCase()
 
-      const matchSearch =
-        normalize(order.order_no).includes(q) ||
-        normalize(order.customer_name).includes(q)
+      const matchSearch = normalize(order.order_no).includes(q) || normalize(order.customer_name).includes(q)
 
-      const matchStatus =
-        statusFilter === "" || normalize(order.status) === normalize(statusFilter)
+      const matchStatus = statusFilter === '' || normalize(order.status) === normalize(statusFilter)
 
       return matchSearch && matchStatus
     })
   }, [orders, search, statusFilter])
 
-  const selectedPayment = Array.isArray(orderDetails?.payment)
-    ? orderDetails.payment[0]
-    : orderDetails?.payment
+  const selectedPayment = Array.isArray(orderDetails?.payment) ? orderDetails.payment[0] : orderDetails?.payment
 
   return (
     <AdminLayout title="Orders">
@@ -125,10 +88,7 @@ export default function OrdersPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="">All Status</option>
             <option value="pending">Pending</option>
             <option value="paid">Paid</option>
@@ -139,10 +99,6 @@ export default function OrdersPage() {
             <option value="cancelled">Cancelled</option>
             <option value="refunded">Refunded</option>
           </select>
-
-          <button type="button" onClick={refreshOrders}>
-            Refresh
-          </button>
         </div>
 
         <div className="admin-table-wrap">
@@ -169,17 +125,15 @@ export default function OrdersPage() {
               ) : filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => {
                   const orderStatus = normalize(order.status)
-                  const hasCancelRequest =
-                    order.cancel_requested ||
-                    orderStatus === "cancel requested"
+                  const hasCancelRequest = order.cancel_requested || orderStatus === 'cancel requested'
 
                   return (
                     <tr key={order.id}>
                       <td>{order.order_no}</td>
-                      <td>{order.customer_name || "Walk-in Customer"}</td>
+                      <td>{order.customer_name || 'Walk-in Customer'}</td>
                       <td>{toCapitalize(order.order_type)}</td>
                       <td>
-                        <span className={`badge ${orderStatus.replaceAll(" ", "-")}`}>
+                        <span className={`badge ${orderStatus.replaceAll(' ', '-')}`}>
                           {toCapitalize(order.status)}
                         </span>
                       </td>
@@ -188,12 +142,9 @@ export default function OrdersPage() {
                         {hasCancelRequest ? (
                           <div className="cancel-request-cell">
                             <span className="badge cancel-request-badge">Requested</span>
-                        
+
                             {order.cancel_reason && (
-                              <div
-                                className="cancel-request-reason"
-                                title={order.cancel_reason}
-                              >
+                              <div className="cancel-request-reason" title={order.cancel_reason}>
                                 {order.cancel_reason.length > 28
                                   ? `${order.cancel_reason.slice(0, 28)}...`
                                   : order.cancel_reason}
@@ -205,23 +156,14 @@ export default function OrdersPage() {
                         )}
                       </td>
                       <td className="table-actions">
-                        <button
-                          type="button"
-                          className="admin-action-btn"
-                          onClick={() => handleOpenModal(order)}
-                        >
+                        <button type="button" className="admin-action-btn" onClick={() => handleOpenModal(order)}>
                           View Details
                         </button>
 
                         <select
                           value={normalize(order.status)}
-                          onChange={(e) =>
-                            handleStatusChange(order.id, e.target.value)
-                          }
-                          disabled={
-                            orderStatus === "refunded" ||
-                            orderStatus === "cancelled"
-                          }
+                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                          disabled={orderStatus === 'refunded' || orderStatus === 'cancelled'}
                         >
                           <option value="pending">Pending</option>
                           <option value="paid">Paid</option>
@@ -273,16 +215,10 @@ export default function OrdersPage() {
               <div>
                 <h3>Order Details</h3>
                 <p>Customer order information and items</p>
-                {orderDetails?.created_at && (
-                  <p>{new Date(orderDetails.created_at).toLocaleString()}</p>
-                )}
+                {orderDetails?.created_at && <p>{new Date(orderDetails.created_at).toLocaleString()}</p>}
               </div>
 
-              <button
-                type="button"
-                className="admin-modal-close"
-                onClick={handleCloseModal}
-              >
+              <button type="button" className="admin-modal-close" onClick={handleCloseModal}>
                 ✕
               </button>
             </div>
@@ -299,17 +235,17 @@ export default function OrdersPage() {
 
                   <div className="admin-detail-item">
                     <label>Customer</label>
-                    <span>{orderDetails.customer_name || "Walk-in Customer"}</span>
+                    <span>{orderDetails.customer_name || 'Walk-in Customer'}</span>
                   </div>
 
                   <div className="admin-detail-item">
                     <label>Email</label>
-                    <span>{orderDetails.email || "N/A"}</span>
+                    <span>{orderDetails.email || 'N/A'}</span>
                   </div>
 
                   <div className="admin-detail-item">
                     <label>Phone</label>
-                    <span>{orderDetails.phone || "N/A"}</span>
+                    <span>{orderDetails.phone || 'N/A'}</span>
                   </div>
 
                   <div className="admin-detail-item">
@@ -329,21 +265,18 @@ export default function OrdersPage() {
 
                   <div className="admin-detail-item">
                     <label>Total</label>
-                    <span>
-                      ₱{Number(orderDetails.total_amount || 0).toLocaleString()}
-                    </span>
+                    <span>₱{Number(orderDetails.total_amount || 0).toLocaleString()}</span>
                   </div>
 
                   <div className="admin-detail-item">
                     <label>Payment Method</label>
-                    <span>{selectedPayment?.payment_method || "N/A"}</span>
+                    <span>{selectedPayment?.payment_method || 'N/A'}</span>
                   </div>
 
                   <div className="admin-detail-item">
                     <label>Payment Status</label>
-                    <span>{selectedPayment?.payment_status || "N/A"}</span>
+                    <span>{selectedPayment?.payment_status || 'N/A'}</span>
                   </div>
-                  
 
                   {orderDetails.cancel_reason && (
                     <div className="admin-detail-item wide cancel-reason-box">
@@ -371,7 +304,7 @@ export default function OrdersPage() {
                   <div className="admin-cancel-panel">
                     <div>
                       <h4>Cancellation Requested</h4>
-                      <p>{orderDetails.cancel_reason || "No reason provided."}</p>
+                      <p>{orderDetails.cancel_reason || 'No reason provided.'}</p>
                     </div>
 
                     <div className="table-actions">
@@ -394,12 +327,9 @@ export default function OrdersPage() {
                   </div>
                 )}
 
-                <div
-                  className="admin-page-card"
-                  style={{ marginTop: "20px", padding: "18px" }}
-                >
+                <div className="admin-page-card" style={{ marginTop: '20px', padding: '18px' }}>
                   <div className="admin-page-head">
-                    <h2 style={{ fontSize: "22px" }}>Ordered Items</h2>
+                    <h2 style={{ fontSize: '22px' }}>Ordered Items</h2>
                     <p>Products included in this order</p>
                   </div>
 

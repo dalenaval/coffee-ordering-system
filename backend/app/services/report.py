@@ -14,9 +14,9 @@ def get_report_summary(db: Session, date_from=None, date_to=None):
     total_orders = query.count()
     total_sales = query.with_entities(func.coalesce(func.sum(Order.total_amount), 0)).scalar() or 0
 
-    completed_orders = query.filter(Order.status == "Completed").count()
-    pending_orders = query.filter(Order.status == "Pending").count()
-    cancelled_orders = query.filter(Order.status == "Cancelled").count()
+    completed_orders = query.filter(func.lower(Order.status) == "completed").count()
+    pending_orders = query.filter(func.lower(Order.status) == "pending").count()
+    cancelled_orders = query.filter(func.lower(Order.status) == "cancelled").count()
 
     average_order_value = float(total_sales / total_orders) if total_orders else 0
 

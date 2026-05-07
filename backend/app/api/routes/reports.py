@@ -1,3 +1,5 @@
+from zoneinfo import ZoneInfo
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -15,17 +17,19 @@ def get_reports_summary(
     date_to: str | None = Query(None),
     db: Session = Depends(get_db)
 ):
+    manila_tz = ZoneInfo("Asia/Manila")
     order_query = db.query(Order)
     item_query = db.query(OrderItem, Product).join(Product, Product.id == OrderItem.product_id)
 
     if date_from:
-        parsed_from = datetime.strptime(date_from, "%Y-%m-%d")
-        order_query = order_query.filter(Order.created_at >= parsed_from)
+        dt_from = datetime.strptime(date_from, "%Y-%m-%d").replace(tzinfo=manila_tz)
+        order_query = order_query.filter(Order.created_at >= dt_from)
 
     if date_to:
-        parsed_to = datetime.strptime(date_to, "%Y-%m-%d")
-        order_query = order_query.filter(Order.created_at <= parsed_to)
-
+        dt_to = datetime.strptime(date_to, "%Y-%m-%d").replace(
+            hour=23, minute=59, second=59, microsecond=999999, tzinfo=manila_tz
+        )
+        order_query = order_query.filter(Order.created_at <= dt_to)
     filtered_orders = order_query.all()
     order_ids = [o.id for o in filtered_orders]
 
