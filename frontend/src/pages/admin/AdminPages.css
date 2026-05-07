@@ -328,7 +328,6 @@
   padding: 22px;
   border-radius: 20px;
   background: linear-gradient(135deg, #8b542c, #c98c5c);
-  color: #fff;
   box-shadow: 0 18px 35px rgba(139, 84, 44, 0.18);
 }
 
@@ -336,12 +335,14 @@
   margin: 0 0 8px;
   font-size: 14px;
   opacity: 0.9;
+  color: var(--text-white);
 }
 
 .report-card h2 {
   margin: 0;
   font-size: 32px;
   font-weight: 800;
+  color: var(--text-white);
 }
 
 .report-card.light {
