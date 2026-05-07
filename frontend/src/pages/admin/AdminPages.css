@@ -160,18 +160,24 @@
 
 .admin-modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(29, 20, 14, 0.48);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  z-index: 2000;
+  z-index: 1000;
+  padding: 20px;
 }
 
 .admin-modal-card {
+  position: relative;
+  overflow-y: auto;
   width: 100%;
   max-width: 820px;
+  max-height: 95vh;
   background: #fff;
   border-radius: 28px;
   padding: 26px;
@@ -536,6 +542,7 @@
 .system-setting-row {
   display: grid;
   grid-template-columns: 1.2fr 0.9fr;
+  text-align: left;
   gap: 18px;
   padding: 20px 24px;
   border-bottom: 1px solid #f5ece4;

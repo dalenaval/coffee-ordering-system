@@ -11,7 +11,7 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 @router.get("/summary")
 def get_dashboard_summary(db: Session = Depends(get_db)):
-    total_orders = db.query(func.count(Order.id)).scalar() or 0
+    total_orders = db.query(func.count(Order.id)).filter(Order.status == "completed").scalar() or 0
     total_products = db.query(func.count(Product.id)).scalar() or 0
     total_customers = db.query(func.count(User.id)).filter(User.role =="customer").scalar() or 0
 

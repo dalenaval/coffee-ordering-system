@@ -18,7 +18,7 @@ def get_reports_summary(
     db: Session = Depends(get_db)
 ):
     manila_tz = ZoneInfo("Asia/Manila")
-    order_query = db.query(Order)
+    order_query = db.query(Order).filter(func.lower(Order.status) != func.lower("cancelled"))
     item_query = db.query(OrderItem, Product).join(Product, Product.id == OrderItem.product_id)
 
     if date_from:
