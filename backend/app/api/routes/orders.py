@@ -38,9 +38,14 @@ resend.api_key = RESEND_API_KEY
 @router.get("/")
 def get_orders(db: Session = Depends(get_db)):
     rows = (
-        db.query(Order, User)
+       db.query(Order, User, Payment)
         .outerjoin(User, Order.user_id == User.id)
-        .order_by(Order.created_at.asc()) 
+        .outerjoin(Payment, Order.id == Payment.order_id) # Join Payment to access paid_at
+        .order_by(
+            # Sort by payment date (Descending), pushing NULLS to the bottom
+            Payment.paid_at.desc().nulls_last(), 
+            Order.created_at.desc()
+        )
         .all()
     )
 
@@ -67,7 +72,7 @@ def get_orders(db: Session = Depends(get_db)):
             "refund_id": order.refund_id,
             "refund_reason": order.refund_reason,
         }
-        for order, user in rows
+        for order, user, payment in rows
     ]
 
 @router.get("/my-orders")

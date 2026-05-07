@@ -3,55 +3,46 @@ import AdminLayout from '../../components/admin/AdminLayout'
 import './AdminPages.css'
 import { toCapitalize } from '@/utils/toCapitalize'
 import { useGetDashboardSummary, useGetLowStockProducts, useRestockProduct } from '@/hooks/useDashboardQuery'
+import Swal from 'sweetalert2'
 
 export default function DashboardPage() {
   const { data: summary, isLoading: isSummaryLoading } = useGetDashboardSummary()
-  const { data: lowStockCount } = useGetLowStockProducts()
+  const { data: lowStockCount = [], isLoading: isLowStockLoading } = useGetLowStockProducts()
   const restockProduct = useRestockProduct()
 
-  const [restockingId, setRestockingId] = useState(null)
-  const [confirmModal, setConfirmModal] = useState({
-    open: false,
-    productId: null,
-    productName: '',
-  })
-
-  const openRestockModal = (productId, productName) => {
-    setConfirmModal({
-      open: true,
-      productId,
-      productName,
-    })
-  }
-
-  const closeRestockModal = () => {
-    setConfirmModal({
-      open: false,
-      productId: null,
-      productName: '',
-    })
-  }
-
-  const handleQuickRestock = () => {
-    console.log(confirmModal.productId)
-    try {
-      setRestockingId(confirmModal.productId)
-
-      const payloadData = {
-        quantity: 10,
-        remarks: 'Quick restock from dashboard',
+  const handleRestock = (productId, productName) => {
+    Swal.fire({
+      title: 'Confirm Quick Restock',
+      text: `Enter stock units to add for ${productName}:`,
+      icon: 'question',
+      input: 'number',
+      inputValue: 10,
+      inputAttributes: {
+        min: 1,
+        step: 1,
+        style: 'width: 120px; margin: 0 auto; text-align: center;', // Centers and narrows the field
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Restock',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#795548', // Matches the brown "Quick Restock" button theme
+      inputValidator: (value) => {
+        if (!value || value <= 0) {
+          return 'Please enter a valid quantity!'
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payloadData = {
+          quantity: result.value,
+          remarks: 'Quick restock from dashboard',
+        }
+        restockProduct.mutate({ productId: productId, payload: payloadData })
       }
-
-      restockProduct.mutate({ productId: confirmModal.productId, payload: payloadData })
-      closeRestockModal()
-    } catch (error) {
-      console.error('Failed to restock product:', error)
-    } finally {
-      setRestockingId(null)
-    }
+    })
   }
 
-  if (isSummaryLoading) {
+  if (isSummaryLoading || isLowStockLoading) {
     return (
       <AdminLayout title="Dashboard">
         <div className="admin-loading-state">Loading dashboard summary...</div>
@@ -106,7 +97,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {lowStockCount.length > 0 ? (
+              {lowStockCount?.length > 0 ? (
                 lowStockCount.map((item) => (
                   <tr key={item.id}>
                     <td>{item.name}</td>
@@ -121,7 +112,8 @@ export default function DashboardPage() {
                       <button
                         type="button"
                         className="admin-action-btn"
-                        onClick={() => openRestockModal(item.id, item.name)}
+                        onClick={() => handleRestock(item.id, item.name)}
+                        // onClick={() => openRestockModal(item.id, item.name)}
                       >
                         Quick Restock
                       </button>
@@ -179,39 +171,6 @@ export default function DashboardPage() {
           </table>
         </div>
       </section>
-
-      {confirmModal.open && (
-        <div className="admin-modal-overlay" onClick={closeRestockModal}>
-          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-page-head">
-              <h2>Confirm Restock</h2>
-              <p>
-                Add 10 stock units to <strong>{confirmModal.productName}</strong>?
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="admin-action-btn"
-                style={{ background: '#d1d5db', color: '#111827', boxShadow: 'none' }}
-                onClick={closeRestockModal}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="admin-action-btn"
-                onClick={handleQuickRestock}
-                disabled={restockingId === confirmModal.productId}
-              >
-                {restockingId === confirmModal.productId ? 'Restocking...' : 'Confirm Restock'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </AdminLayout>
   )
 }

@@ -17,10 +17,15 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
 
     total_sales = (
         db.query(func.coalesce(func.sum(Payment.total_amount), 0))
-        .filter(Payment.payment_status.in_(["paid", "completed"]))
-        .scalar()
-    ) or 0
+            .join(Order, Payment.order_id == Order.id) # Join the Order table
+            .filter(
+            Payment.payment_status.in_(["paid", "completed"]),
+            func.lower(Order.status) == "completed"
+        )
+            .scalar()   
+        ) or 0
 
+    print(f"Total Sales: {total_sales}")
     recent_orders = (
         db.query(Order)
         .order_by(Order.created_at.desc())
