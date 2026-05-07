@@ -20,7 +20,7 @@ def add_products_to_cart( payload: dict,user_id = Depends(get_current_user), db:
 
     try:
         cart = get_or_create_cart(db, user_id)
-        existingItem = db.query(CartItem).filter(CartItem.product_code == payload.get("product_code")).first()
+        existingItem = db.query(CartItem).filter(CartItem.product_code == payload.get("product_code"), CartItem.cart_id == cart.id).first()
         quantity = payload.get("quantity", 0) + (existingItem.quantity if existingItem else 0)
         has_stock = db.query(Product).filter(Product.id == payload.get("product_id"), Product.stock >= quantity).first()
        

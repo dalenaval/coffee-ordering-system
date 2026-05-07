@@ -130,14 +130,14 @@ def verify_payment(payload: dict, db: Session = Depends(get_db)):
         paymongo_result = service.retrieve_payment_intent(payment_intent_id)
 
         paymongo_status = paymongo_result["data"]["attributes"]["status"]
-        payment_paid_at = datetime.fromtimestamp(paymongo_result["data"]["attributes"]["paid_at"], tz=timezone.utc)
+        payment_paid_at = paymongo_result["data"]["attributes"]['payments'][0]['attributes']["paid_at"]
 
         if paymongo_status in ["succeeded", "paid"]:
             if payment.payment_status != "paid":
                 deduct_stock_after_payment(order, db)
         
             if payment_paid_at:
-                payment.paid_at = payment_paid_at
+                payment.paid_at = datetime.fromtimestamp(payment_paid_at, tz=timezone.utc)
                 
             payment.payment_status = "paid"
             order.status = "paid"
