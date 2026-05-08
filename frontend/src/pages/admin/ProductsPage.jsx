@@ -5,13 +5,20 @@ import './AdminPages.css'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
-  const [lowStock, setLowStock] = useState([])
-  const [restockQty, setRestockQty] = useState({})
-  const [remarks, setRemarks] = useState({})
+  const [editingId, setEditingId] = useState(null)
+  const [form, setForm] = useState({
+    name: '',
+    categoryId: '',
+    price: '',
+    isAvailable: true,
+    stock: '',
+    lowStockThreshold: '',
+    imageUrl: '',
+    descriptions: '',
+  })
 
   useEffect(() => {
     fetchProducts()
-    fetchLowStock()
   }, [])
 
   const fetchProducts = async () => {
@@ -23,105 +30,90 @@ export default function ProductsPage() {
     }
   }
 
-  const fetchLowStock = async () => {
-    try {
-      const data = await getLowStockProducts()
-      setLowStock(data)
-    } catch (error) {
-      console.error('Failed to load low stock items:', error)
-    }
-  }
-
-  const handleRestock = async (productId) => {
-    try {
-      const quantity = Number(restockQty[productId] || 0)
-      if (quantity <= 0) return
-
-      await restockProduct(productId, {
-        quantity,
-        remarks: remarks[productId] || null,
-      })
-
-      setRestockQty((prev) => ({ ...prev, [productId]: '' }))
-      setRemarks((prev) => ({ ...prev, [productId]: '' }))
-
-      fetchProducts()
-      fetchLowStock()
-    } catch (error) {
-      console.error('Failed to restock product:', error)
-    }
-  }
-
   return (
     <AdminLayout title="Products">
-      <div className="admin-page-card">
-        <div className="admin-page-head">
-          <h2>Low Stock Alerts</h2>
-          <p>Products that need replenishment.</p>
+      <div className="employee-workspace-grid">
+        <div className="admin-page-card employee-form-card">
+          <div className="admin-page-head">
+            <h2>{editingId ? 'Edit Product' : 'Create Product'}</h2>
+            <p>Maintain product records, assign categories, and manage customization options.</p>
+          </div>
+
+          <form className="employee-form-grid" onSubmit={() => {}}>
+            <div className="employee-form-field">
+              <label>Product Name</label>
+              <input
+                className="settings-control"
+                name="name"
+                placeholder="Enter product name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="employee-form-field">
+              <label>Employee Email</label>
+              <input
+                className="settings-control"
+                name="email"
+                type="email"
+                placeholder="Enter employee email"
+                value={''}
+                onChange={() => {}}
+              />
+            </div>
+
+            <div className="employee-form-actions">
+              <button type="submit" className="system-save-btn" disabled={false}>
+                Add Product
+              </button>
+
+              <button type="button" className="secondary-action-btn" onClick={() => {}}>
+                Clear Form
+              </button>
+            </div>
+          </form>
         </div>
 
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Restock Qty</th>
-                <th>Remarks</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lowStock.length > 0 ? (
-                lowStock.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.stock}</td>
-                    <td>
-                      <span className={`badge ${item.status === 'OUT OF STOCK' ? 'cancelled' : 'pending'}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td>
-                    <input
-                      type="number"
-                      min="1"
-                      step="1"
-                      inputMode="numeric"
-                      value={restockQty[item.id] || ''}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (/^\d*$/.test(val)) {
-                          setRestockQty((prev) => ({ ...prev, [item.id]: val }));
-                        }
-                      }}
-                    />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={remarks[item.id] || ''}
-                        onChange={(e) => setRemarks((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                        placeholder="Optional remarks"
-                      />
-                    </td>
-                    <td>
-                      <button type="button" className="admin-action-btn" onClick={() => handleRestock(item.id)}>
-                        Restock
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="empty-state-cell">
-                    All product stocks are healthy.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="admin-page-card employee-insights-card">
+          <div className="admin-page-head">
+            <h2>Workforce Insights</h2>
+            <p>Quick overview of your current internal team structure.</p>
+          </div>
+
+          <div className="employee-insight-list">
+            <div className="employee-insight-item">
+              <span className="employee-insight-icon">🧑‍💼</span>
+              <div>
+                <strong> Management Role</strong>
+                <p>Users assigned with manager access.</p>
+              </div>
+            </div>
+
+            <div className="employee-insight-item">
+              <span className="employee-insight-icon">✅</span>
+              <div>
+                <strong> Ready for Operations</strong>
+                <p>Employees currently marked active in the system.</p>
+              </div>
+            </div>
+
+            <div className="employee-insight-item">
+              <span className="employee-insight-icon">🔒</span>
+              <div>
+                <p>Employees with linked internal login accounts.</p>
+              </div>
+            </div>
+
+            <div className="employee-insight-item">
+              <span className="employee-insight-icon">📌</span>
+              <div>
+                <strong> Inactive Personnel</strong>
+                <p>Employees currently unavailable for active assignment.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
