@@ -131,7 +131,7 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
         "status": order.status,
         "subtotal": float(order.subtotal),
         "total_amount": float(order.total_amount),
-        "created_at":order.created_at.astimezone(ZoneInfo("Asia/Manila")).strftime("%B %d, %Y %I:%M:%S %p"),
+        "created_at":order.created_at.strftime("%B %d, %Y %I:%M:%S %p"),
 
     }
 
@@ -277,8 +277,12 @@ async def create_order(
 def update_order_status(order_id: int, payload: dict, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
 
+
     if not order:
         raise HTTPException(status_code=404, detail="Order not found.")
+    
+    print(f"order to update", order.status if order.status else "None")
+
 
     new_status = payload.get("status")
     if not new_status:
